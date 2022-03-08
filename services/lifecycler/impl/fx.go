@@ -19,7 +19,12 @@ func (s *Service) Run() (err error) {
 		return err
 	}
 
-	golog.Printf("application startup in %v", time.Since(s.startTime))
+	msg := fmt.Sprintf("application startup in %v", time.Since(s.startTime))
+	if s.log != nil {
+		s.log.Infoln(msg)
+	} else {
+		golog.Println(msg)
+	}
 
 	<-s.app.Done()
 
@@ -31,7 +36,12 @@ func (s *Service) Run() (err error) {
 		return err
 	}
 
-	golog.Printf("application exit in %v", time.Since(doneTime))
+	msg = fmt.Sprintf("application exit in %v", time.Since(doneTime))
+	if s.log != nil {
+		s.log.Infoln(msg)
+	} else {
+		golog.Println(msg)
+	}
 	return nil
 }
 
@@ -106,9 +116,4 @@ func Shutdown(dig *dig.Container) {
 			lc.ExecuteOnErrors(context.Background())
 		}
 	})
-}
-
-func (s *Service) OverrideLogger(log log.Service) (err error) {
-	s.fxOptions = append(s.fxOptions, fx.Logger(log))
-	return nil
 }

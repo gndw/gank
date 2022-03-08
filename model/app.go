@@ -3,12 +3,12 @@ package model
 import (
 	"context"
 
-	"github.com/gndw/gank/services/utils/log"
+	"github.com/gndw/gank/services/lifecycler"
 	"go.uber.org/fx"
 )
 
 type App struct {
-	Lifecycler Lifecycler
+	Lifecycler lifecycler.Service
 }
 
 func (a *App) Run() (err error) {
@@ -16,18 +16,6 @@ func (a *App) Run() (err error) {
 }
 
 type BuilderOption func(*App) error
-
-type Lifecycler interface {
-	// Executed before builder options
-	PreConfig() (err error)
-	// Executed after builder options
-	PostConfig() (err error)
-	// Function to start the lifecycler
-	Run() (err error)
-	AddProviders(providers ...interface{}) (err error)
-	AddInvokers(invokers ...interface{}) (err error)
-	OverrideLogger(log log.Service) (err error)
-}
 
 type Shutdowner fx.Shutdowner
 type Lifecycle interface {
