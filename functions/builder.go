@@ -1,4 +1,4 @@
-package builder
+package functions
 
 import (
 	"github.com/gndw/gank/model"
