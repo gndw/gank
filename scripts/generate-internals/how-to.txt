@@ -1,0 +1,23 @@
+# example
+# sh generate-handler.sh v1/internals/handlers/testpackage testpackage
+
+# example
+# sh generate-usecase.sh v1/internals/usecases/testpackage testpackage
+
+# example
+# sh generate-datalogic.sh v1/internals/datalogics/testpackage testpackage
+
+# example
+# sh generate-repository.sh v1/internals/repositories/testpackage testpackage
+
+# example #package-folder #package-name
+# sh v1-generate-handler.sh testpackage testpackage
+
+# example #package-folder #package-name
+# sh v1-generate-usecase.sh testpackage testpackage
+
+# example #package-folder #package-name
+# sh v1-generate-datalogic.sh testpackage testpackage
+
+# example #package-folder #package-name
+# sh v1-generate-repository.sh testpackage testpackage
