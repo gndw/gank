@@ -7,6 +7,7 @@ import (
 	"github.com/gndw/gank/errorsg"
 	"github.com/gndw/gank/services/db"
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 func (s *Service) Ping(ctx context.Context) (err error) {
@@ -79,4 +80,8 @@ func (t *Transaction) Get(ctx context.Context, dests []interface{}, query string
 func (t *Transaction) Exec(ctx context.Context, query string, args ...interface{}) (err error) {
 	_, err = t.tx.ExecContext(ctx, query, args)
 	return err
+}
+
+func (s *Service) ArgArray(a interface{}) interface{} {
+	return pq.Array(a)
 }

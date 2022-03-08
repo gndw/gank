@@ -12,6 +12,7 @@ type Service interface {
 	Get(ctx context.Context, dest interface{}, query string, args ...interface{}) (err error)
 	Exec(ctx context.Context, query string, args ...interface{}) (err error)
 	WithTransaction(ctx context.Context, transaction func(context.Context, Transaction) error) (err error)
+	ArgArray(a interface{}) interface{}
 }
 
 type Transaction interface {
