@@ -1,5 +1,9 @@
 package config
 
+import (
+	"github.com/gndw/gank/functions"
+)
+
 type Service interface {
 	GetToken() Token
 	GetServer() Server
@@ -22,18 +26,37 @@ type Auth interface {
 }
 
 var (
-	DEFAULT_ENV_NAME_DEVELOPMENT    = "development"
-	DEFAULT_ENV_NAME_ENV_STAGING    = "staging"
-	DEFAULT_ENV_NAME_ENV_PRODUCTION = "production"
+	GetDefaultGolangPath                          = func() []string { return []string{"GOPATH", "src"} }
+	GetDefaultDevelopmentConfigFileRelativeToRepo = func() []string { return []string{"files", "var", "config", "ss.development.config.yaml"} }
+	GetDefaultStagingConfigFileRelativeToRepo     = func() []string { return []string{"files", "var", "config", "ss.staging.config.yaml"} }
+	GetDefaultProductionConfigFileRelativeToRepo  = func() []string { return []string{"files", "var", "config", "ss.production.config.yaml"} }
 
-	DEFAULT_FLAG_NAME_ENV = "env"
+	GetDefaultFilePathUsingRepositoryPath = func(pathToRepo ...string) []string {
+		result := functions.CombineStringArray(
+			GetDefaultGolangPath(),
+			append([]string{}, pathToRepo...),
+			GetDefaultDevelopmentConfigFileRelativeToRepo())
+		return result
+	}
+	GetServerDefaultFilePathUsingRepositoryPath = func(pathToRepo ...string) []string {
+		result := functions.CombineStringArray(
+			append([]string{}, pathToRepo...),
+			GetDefaultDevelopmentConfigFileRelativeToRepo())
+		return result
+	}
 
-	DEFAULT_MACHINE_ENV_NAME = "APP_ENV"
+	DEFAULT_FILE_PATH_ON_DEVELOPMENT_SERVER = functions.CombineStringArray(GetDefaultGolangPath(), []string{"github.com", "gndw", "gank"}, GetDefaultDevelopmentConfigFileRelativeToRepo())
+	DEFAULT_FILE_PATH_ON_STAGING_SERVER     = append([]string{"/app"}, GetDefaultStagingConfigFileRelativeToRepo()...)
+	DEFAULT_FILE_PATH_ON_PRODUCTION_SERVER  = append([]string{"/app"}, GetDefaultProductionConfigFileRelativeToRepo()...)
 )
 
 type Preference struct {
-	DefaultEnv     string // replacing DEFAULT_ENV_NAME_DEVELOPMENT
-	FlagNameEnv    string // replacing DEFAULT_FLAG_NAME_ENV
-	MachineEnvName string // replacing DEFAULT_MACHINE_ENV_NAME
-	AdditionalEnvs []string
+	FilePathDevelopment    []string
+	FilePathStaging        []string
+	FilePathProduction     []string
+	AdditionalEnvFilePaths map[string][]string // file path based on custom environment
+}
+
+func CreatePreference(preference Preference) func() (*Preference, error) {
+	return func() (*Preference, error) { return &preference, nil }
 }

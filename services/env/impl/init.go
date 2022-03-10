@@ -1,7 +1,6 @@
 package impl
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -21,10 +20,6 @@ type Service struct {
 }
 
 func New(params Parameters) (env.Service, error) {
-
-	fmt.Println("params", params)
-	xx, _ := json.MarshalIndent(params, "", "    ")
-	fmt.Println("parammm", string(xx))
 
 	ins := &Service{}
 	ins.PopulateDataFromPreference(params.Preference)

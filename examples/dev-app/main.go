@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/gndw/gank"
-	"github.com/gndw/gank/services/env"
+	"github.com/gndw/gank/services/config"
 )
 
 func main() {
@@ -22,12 +22,17 @@ func main() {
 		// use this option to start http health service
 		gank.WithHealthHandler(),
 
-		//
-		gank.WithProviders(func() (*env.Preference, error) {
-			return &env.Preference{
-				DefaultEnv: "yahoo",
-			}, nil
-		}),
+		// gank.WithProviders(func() (*env.Preference, error) {
+		// 	return &env.Preference{
+		// 		DefaultEnv: "yahoo",
+		// 	}, nil
+		// }),
+
+		gank.WithProviders(
+			config.CreatePreference(config.Preference{
+				FilePathDevelopment: config.GetDefaultFilePathUsingRepositoryPath("github.com", "gndwx", "social-story-service"),
+			}),
+		),
 	)
 	if err != nil {
 		log.Fatal(err)

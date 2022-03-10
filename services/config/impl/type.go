@@ -5,6 +5,8 @@ import (
 )
 
 type Service struct {
+	ConfigInternalData
+
 	Token  Token  `yaml:"token"`
 	Server Server `yaml:"server"`
 	Auth   Auth   `yaml:"auth"`
