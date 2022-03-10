@@ -26,7 +26,7 @@ func New(env env.Service) (config.Service, error) {
 		// * make sure your project repository is in GOPATH/src/github.com/gndw/social-story-service
 
 		configFilePath = path.Join(gopath, "src", "github.com", "gndw", "social-story-service", "files", "var", "config", "ss.development.config.yaml")
-	} else {
+	} else if env.IsStaging() || env.IsProduction() {
 
 		configFileName := ""
 		if env.IsStaging() {

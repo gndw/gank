@@ -2,8 +2,8 @@ package impl
 
 import (
 	"github.com/gndw/gank/internals/usecases/health"
+	"github.com/gndw/gank/model"
 	"github.com/gndw/gank/services/db"
-	"go.uber.org/dig"
 )
 
 type Usecase struct {
@@ -18,6 +18,6 @@ func New(params Parameters) (result health.Usecase, err error) {
 }
 
 type Parameters struct {
-	dig.In
+	model.In
 	Db db.Service `optional:"true"`
 }

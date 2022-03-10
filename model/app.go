@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/gndw/gank/services/lifecycler"
+	"go.uber.org/dig"
 	"go.uber.org/fx"
 )
 
@@ -52,4 +53,8 @@ func (l *MyLifecycle) ExecuteOnErrors(ctx context.Context) {
 	for i := len(l.OnInvokeErrors) - 1; i >= 0; i-- {
 		l.OnInvokeErrors[i](ctx)
 	}
+}
+
+type In struct {
+	dig.In
 }

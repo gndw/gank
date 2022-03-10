@@ -1,64 +1,114 @@
 package impl
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 
-	"github.com/gndw/gank/constant"
+	"github.com/gndw/gank/functions"
+	"github.com/gndw/gank/model"
 	"github.com/gndw/gank/services/env"
 	"github.com/gndw/gank/services/utils/log"
 )
 
 type Service struct {
-	env string
+	env            string
+	defaultEnv     string
+	flagNameEnv    string
+	machineEnvName string
+	allowedEnvs    map[string]bool
 }
 
-func New(log log.Service) (env.Service, error) {
+func New(params Parameters) (env.Service, error) {
+
+	fmt.Println("params", params)
+	xx, _ := json.MarshalIndent(params, "", "    ")
+	fmt.Println("parammm", string(xx))
 
 	ins := &Service{}
+	ins.PopulateDataFromPreference(params.Preference)
+
 	defer func() {
-		log.Infof("starting application with env: %v", ins.Get())
+		params.Log.Infof("starting application with env: %v", ins.Get())
 	}()
 
-	// *ENV_DEVELOPMENT = "development"
-	// *ENV_STAGING     = "staging"
-	// *ENV_PRODUCTION  = "production"
-
-	allowedEnvs := map[string]bool{
-		constant.ENV_DEVELOPMENT: true,
-		constant.ENV_STAGING:     true,
-		constant.ENV_PRODUCTION:  true,
+	isExistFromFlag, err := ins.PopulateEnvNameFromFlag()
+	if err != nil {
+		return nil, err
+	} else if isExistFromFlag {
+		return ins, nil
 	}
 
-	// * ENV_FLAG_NAME = "env"
-	// * ENV_VAR_NAME  = "ss-env"
+	isExistFromMachineEnvVar, err := ins.PopulateEnvNameFromEnvMachineVar()
+	if err != nil {
+		return nil, err
+	} else if isExistFromMachineEnvVar {
+		return ins, nil
+	}
 
-	// checking env from flag
-	flagEnv := flag.String(constant.ENV_FLAG_NAME, "", "process environment")
+	// use default env
+	ins.env = ins.defaultEnv
+	return ins, nil
+}
+
+func (s *Service) PopulateDataFromPreference(pref *env.Preference) {
+
+	s.defaultEnv = env.DEFAULT_ENV_NAME_DEVELOPMENT
+	s.flagNameEnv = env.DEFAULT_FLAG_NAME_ENV
+	s.machineEnvName = env.DEFAULT_MACHINE_ENV_NAME
+	allowedEnvs := map[string]bool{
+		env.DEFAULT_ENV_NAME_DEVELOPMENT:    true,
+		env.DEFAULT_ENV_NAME_ENV_STAGING:    true,
+		env.DEFAULT_ENV_NAME_ENV_PRODUCTION: true,
+	}
+
+	if pref != nil {
+		if functions.IsAllNonEmpty(pref.DefaultEnv) {
+			s.defaultEnv = pref.DefaultEnv
+		}
+		if functions.IsAllNonEmpty(pref.FlagNameEnv) {
+			s.flagNameEnv = pref.FlagNameEnv
+		}
+		if functions.IsAllNonEmpty(pref.MachineEnvName) {
+			s.machineEnvName = pref.MachineEnvName
+		}
+		for _, addEnv := range pref.AdditionalEnvs {
+			allowedEnvs[addEnv] = true
+		}
+	}
+
+}
+
+func (s *Service) PopulateEnvNameFromFlag() (isValid bool, err error) {
+	flagEnv := flag.String(s.flagNameEnv, "", "process environment")
 	flag.Parse()
 	if flagEnv != nil && *flagEnv != "" {
-		if allow, exist := allowedEnvs[*flagEnv]; exist && allow {
-			ins.env = *flagEnv
-			return ins, nil
+		if allow, exist := s.allowedEnvs[*flagEnv]; exist && allow {
+			s.env = *flagEnv
+			return true, nil
 		} else {
-			return nil, fmt.Errorf("environment variable [%v] found in flag [%v] is not allowed", *flagEnv, constant.ENV_FLAG_NAME)
+			return false, fmt.Errorf("environment variable [%v] found in flag [%v] is not allowed", *flagEnv, s.flagNameEnv)
 		}
 	}
+	return false, nil
+}
 
-	// checking env from machine environment variables
-	env := os.Getenv(constant.ENV_VAR_NAME)
+func (s *Service) PopulateEnvNameFromEnvMachineVar() (isValid bool, err error) {
+	env := os.Getenv(s.machineEnvName)
 	if env != "" {
-		if allow, exist := allowedEnvs[env]; exist && allow {
-			ins.env = env
-			return ins, nil
+		if allow, exist := s.allowedEnvs[env]; exist && allow {
+			s.env = env
+			return true, nil
 		} else {
-			return nil, fmt.Errorf("environment variable [%v] found in machine variable [%v] not allowed", env, constant.ENV_VAR_NAME)
+			return false, fmt.Errorf("environment variable [%v] found in machine variable [%v] not allowed", env, s.machineEnvName)
 		}
 	}
+	return false, nil
+}
 
-	// if flag & machine env vars is not found, use default 'development'
-	ins.env = constant.ENV_DEVELOPMENT
-
-	return ins, nil
+type Parameters struct {
+	model.In
+	Log        log.Service
+	Preference *env.Preference `optional:"true"`
 }
