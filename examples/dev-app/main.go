@@ -4,8 +4,6 @@ import (
 	"log"
 
 	"github.com/gndw/gank"
-	"github.com/gndw/gank/services/config"
-	"github.com/gndw/gank/services/env"
 )
 
 func main() {
@@ -30,13 +28,14 @@ func main() {
 		// 	}, nil
 		// }),
 
-		gank.WithProviders(
-			config.CreatePreference(config.Preference{
-				EnvFilePaths: map[string][]string{
-					env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT: config.GetDefaultFilePathUsingRepositoryPath("github.com", "gndw", "social-story-service"),
-				},
-			}),
-		),
+		// add custom config file
+		// gank.WithProviders(
+		// 	config.CreatePreference(config.Preference{
+		// 		EnvFilePaths: map[string][]string{
+		// 			env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT: config.GetDefaultFilePathUsingRepositoryPath("github.com", "gndw", "gank"),
+		// 		},
+		// 	}),
+		// ),
 	)
 	if err != nil {
 		log.Fatal(err)
