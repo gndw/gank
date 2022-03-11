@@ -54,7 +54,10 @@ var (
 )
 
 type Preference struct {
-	EnvFilePaths map[string][]string // file path based on custom environment
+	// currently application has default file path for default env. check DEFAULT_FILE_PATH
+	// add your custom file path based on env here
+	// example EnvFilePaths["my-custom-env"] = []string{ "/app","files","my-custom-config-file.yaml" }
+	EnvFilePaths map[string][]string
 }
 
 func CreatePreference(preference Preference) func() (*Preference, error) {
