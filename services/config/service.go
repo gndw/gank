@@ -38,6 +38,12 @@ var (
 		env.DEFAULT_ENV_NAME_ENV_STAGING:     append([]string{"/app"}, GetDefaultStagingConfigFileRelativeToRepo()...),
 		env.DEFAULT_ENV_NAME_ENV_PRODUCTION:  append([]string{"/app"}, GetDefaultProductionConfigFileRelativeToRepo()...),
 	}
+
+	DEFAULT_CONFIG = Service{
+		Server: Server{
+			Port: 9000,
+		},
+	}
 )
 
 type Preference struct {

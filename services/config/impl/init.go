@@ -23,7 +23,9 @@ type ConfigPath struct {
 	Path      string
 }
 
-func New(params Parameters) (data *config.Service, err error) {
+func New(params Parameters) (data config.Service, err error) {
+
+	data = config.DEFAULT_CONFIG
 
 	internalData, err := PopulateDataFromPreference(params.Preference)
 	if err != nil {
@@ -32,18 +34,15 @@ func New(params Parameters) (data *config.Service, err error) {
 
 	configPath, exist := internalData.eligibleEnvBasedFilePaths[params.Env.Get()]
 	if exist {
-		cfg, err := PopulateDataFromConfigFilePath(configPath.Path)
+		err := PopulateDataFromConfigFilePath(configPath.Path, data)
 		if err != nil {
 			if configPath.MustValid {
-				return nil, err
-			} else {
-				return nil, nil
+				return data, err
 			}
 		}
-		return &cfg, nil
 	}
 
-	return nil, nil
+	return data, nil
 }
 
 func PopulateDataFromPreference(pref *config.Preference) (data ConfigInternalData, err error) {
@@ -71,19 +70,19 @@ func PopulateDataFromPreference(pref *config.Preference) (data ConfigInternalDat
 	return data, nil
 }
 
-func PopulateDataFromConfigFilePath(path string) (data config.Service, err error) {
+func PopulateDataFromConfigFilePath(path string, target config.Service) (err error) {
 	if path == "" {
-		return data, errors.New("config file path cannot be empty")
+		return errors.New("config file path cannot be empty")
 	}
 	configByte, err := ioutil.ReadFile(path)
 	if err != nil {
-		return data, fmt.Errorf("failed to read config file in %v with err: %v", path, err)
+		return fmt.Errorf("failed to read config file in %v with err: %v", path, err)
 	}
-	err = yaml.Unmarshal(configByte, &data)
+	err = yaml.Unmarshal(configByte, &target)
 	if err != nil {
-		return data, fmt.Errorf("failed to unmarshal config file")
+		return fmt.Errorf("failed to unmarshal config file")
 	}
-	return data, nil
+	return nil
 }
 
 func GetPathFromArray(pathArray []string) (string, error) {

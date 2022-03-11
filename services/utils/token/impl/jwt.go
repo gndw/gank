@@ -8,6 +8,10 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+func (s *Service) IsValid() (isValid bool) {
+	return s.secret != ""
+}
+
 func (s *Service) Parse(token string) (claims map[string]interface{}, err error) {
 
 	// *Code from https://pkg.go.dev/github.com/golang-jwt/jwt#example-Parse-Hmac

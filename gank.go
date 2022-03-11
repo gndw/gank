@@ -94,7 +94,9 @@ func CreateAndRunApp(lc lifecycler.Service, options ...model.BuilderOption) erro
 
 func DefaultLifecycler() lifecycler.Service {
 	lc, _ := lifecyclerService.NewFX(
-		lifecyclerService.WithOverrideLogger(logService.NewLogrus),
+		lifecyclerService.WithOverrideLogger(func() (log.Service, error) {
+			return logService.NewLogrus(flag.Service{})
+		}),
 	)
 	return lc
 }

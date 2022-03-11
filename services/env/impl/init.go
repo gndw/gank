@@ -1,13 +1,13 @@
 package impl
 
 import (
-	"flag"
 	"fmt"
 	"os"
 
 	"github.com/gndw/gank/functions"
 	"github.com/gndw/gank/model"
 	"github.com/gndw/gank/services/env"
+	"github.com/gndw/gank/services/flag"
 	"github.com/gndw/gank/services/utils/log"
 )
 
@@ -28,7 +28,7 @@ func New(params Parameters) (env.Service, error) {
 		params.Log.Infof("starting application with env: %v", ins.Get())
 	}()
 
-	isExistFromFlag, err := ins.PopulateEnvNameFromFlag()
+	isExistFromFlag, err := ins.PopulateEnvNameFromFlag(params.Flag.Env)
 	if err != nil {
 		return nil, err
 	} else if isExistFromFlag {
@@ -50,7 +50,6 @@ func New(params Parameters) (env.Service, error) {
 func (s *Service) PopulateDataFromPreference(pref *env.Preference) {
 
 	s.defaultEnv = env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT
-	s.flagNameEnv = env.DEFAULT_FLAG_NAME_ENV
 	s.machineEnvName = env.DEFAULT_MACHINE_ENV_NAME
 	allowedEnvs := make(map[string]bool)
 	for _, env := range env.DEFAULT_ALLOWED_ENV_NAME {
@@ -60,9 +59,6 @@ func (s *Service) PopulateDataFromPreference(pref *env.Preference) {
 	if pref != nil {
 		if functions.IsAllNonEmpty(pref.DefaultEnv) {
 			s.defaultEnv = pref.DefaultEnv
-		}
-		if functions.IsAllNonEmpty(pref.FlagNameEnv) {
-			s.flagNameEnv = pref.FlagNameEnv
 		}
 		if functions.IsAllNonEmpty(pref.MachineEnvName) {
 			s.machineEnvName = pref.MachineEnvName
@@ -74,9 +70,7 @@ func (s *Service) PopulateDataFromPreference(pref *env.Preference) {
 
 }
 
-func (s *Service) PopulateEnvNameFromFlag() (isValid bool, err error) {
-	flagEnv := flag.String(s.flagNameEnv, "", "process environment")
-	flag.Parse()
+func (s *Service) PopulateEnvNameFromFlag(flagEnv *string) (isValid bool, err error) {
 	if flagEnv != nil && *flagEnv != "" {
 		if allow, exist := s.allowedEnvs[*flagEnv]; exist && allow {
 			s.env = *flagEnv
@@ -104,5 +98,6 @@ func (s *Service) PopulateEnvNameFromEnvMachineVar() (isValid bool, err error) {
 type Parameters struct {
 	model.In
 	Log        log.Service
+	Flag       flag.Service
 	Preference *env.Preference `optional:"true"`
 }

@@ -1,9 +1,8 @@
 package impl
 
 import (
-	"errors"
-
 	"github.com/gndw/gank/services/secret"
+	"github.com/gndw/gank/services/utils/log"
 	"github.com/gndw/gank/services/utils/token"
 )
 
@@ -11,15 +10,14 @@ type Service struct {
 	secret string
 }
 
-func NewJWT(secret secret.Service) (token.Service, error) {
+func NewJWT(secret secret.Service, log log.Service) (token.Service, error) {
 
-	key := secret.GetToken().GetKey()
+	key := secret.Token.Key
 	if key == "" {
-		return nil, errors.New("jwt token key not found")
+		log.Debugln("jwt token key not found")
 	}
 
-	ins := &Service{
+	return &Service{
 		secret: key,
-	}
-	return ins, nil
+	}, nil
 }

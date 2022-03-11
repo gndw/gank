@@ -28,12 +28,6 @@ type Preference struct {
 	// replacing DEFAULT_ENV_NAME_DEVELOPMENT
 	DefaultEnv string
 
-	// flag name to get environment
-	// example : go run main.go -env=development will start application with development environment
-	// you can change -env flag to other name
-	// replacing DEFAULT_FLAG_NAME_ENV
-	FlagNameEnv string
-
 	// machine environment variable key to get environment
 	// example : apps will find env name from machine environment variable with key : APP_ENV
 	// you can change APP_ENV key to other name

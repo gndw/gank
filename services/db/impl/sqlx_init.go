@@ -26,8 +26,8 @@ func NewSqlx(lc model.Lifecycle, secret secret.Service, log log.Service) (db.Ser
 		log: log,
 	}
 
-	sdb := secret.GetDatabase()
-	host, port, user, pw, dbn := sdb.GetHost(), sdb.GetPort(), sdb.GetUser(), sdb.GetPassword(), sdb.GetDBName()
+	sdb := secret.Database
+	host, port, user, pw, dbn := sdb.Host, sdb.Port, sdb.User, sdb.Password, sdb.DBName
 	dataSource := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s ", host, port, user, pw, dbn)
 
 	if !functions.IsAllAboveZero(port) || !functions.IsAllNonEmpty(host, user, pw, dbn) {

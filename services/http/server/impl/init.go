@@ -28,24 +28,13 @@ func New(params Parameters) (service server.Service, err error) {
 		return
 	}
 
-	port := 0
-
 	// Get port from config file
-	if params.Config != nil {
-		port = params.Config.Server.Port
-	}
+	port := params.Config.Server.Port
 
-	// Get port from Environment Machine
-	if port <= 0 {
-		portEnv := os.Getenv("PORT")
-		if portEnvInt, err := strconv.Atoi(portEnv); err == nil && portEnvInt > 0 {
-			port = portEnvInt
-		}
-	}
-
-	// Set Default Port
-	if port <= 0 {
-		port = server.DEFAULT_PORT
+	// Replace port from Environment Machine if any
+	portEnv := os.Getenv("PORT")
+	if portEnvInt, err := strconv.Atoi(portEnv); err == nil && portEnvInt > 0 {
+		port = portEnvInt
 	}
 
 	serviceInstance := &Service{
@@ -90,7 +79,7 @@ func New(params Parameters) (service server.Service, err error) {
 
 type Parameters struct {
 	model.In
-	Config     *config.Service `optional:"true"`
+	Config     config.Service
 	Lc         model.Lifecycle
 	Shutdowner model.Shutdowner
 	Router     router.Service

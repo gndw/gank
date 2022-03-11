@@ -2,44 +2,108 @@ package impl
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path"
 
-	"github.com/gndw/gank/constant"
+	"github.com/gndw/gank/functions"
+	"github.com/gndw/gank/model"
+	"github.com/gndw/gank/services/config"
 	"github.com/gndw/gank/services/env"
 	"github.com/gndw/gank/services/secret"
 )
 
-func New(env env.Service) (secret.Service, error) {
+type ConfigInternalData struct {
+	eligibleEnvBasedFilePaths map[string]ConfigPath // map[env]ConfigPath
+}
 
-	ins := &Service{}
+type ConfigPath struct {
+	MustValid bool
+	Path      string
+}
 
-	if env.IsDevelopment() {
-		gopath := os.Getenv("GOPATH")
-		if gopath == "" {
-			return nil, fmt.Errorf("GOPATH environment is empty")
-		}
+func New(params Parameters) (data secret.Service, err error) {
 
-		// * make sure your project repository is in GOPATH/src/github.com/gndw/social-story-service
+	internalData, err := PopulateDataFromPreference(params.Preference)
+	if err != nil {
+		return data, err
+	}
 
-		secretFilePath := path.Join(gopath, "src", "github.com", "gndw", "social-story-service", "files", "var", "secret", "ss.development.secret.json")
-		secretByte, err := ioutil.ReadFile(secretFilePath)
+	configPath, exist := internalData.eligibleEnvBasedFilePaths[params.Env.Get()]
+	if exist {
+		err := PopulateDataFromConfigFilePath(configPath.Path, data)
 		if err != nil {
-			return nil, fmt.Errorf("failed to read secret file in %v with err: %v", secretFilePath, err)
-		}
-		err = json.Unmarshal(secretByte, ins)
-		if err != nil {
-			return nil, fmt.Errorf("failed to unmarshal secret file")
-		}
-	} else if env.IsStaging() || env.IsProduction() {
-		secretString := os.Getenv(constant.ENV_SECRET_NAME)
-		err := json.Unmarshal([]byte(secretString), ins)
-		if err != nil {
-			return nil, fmt.Errorf("failed to unmarshal secret file")
+			if configPath.MustValid {
+				return data, err
+			}
 		}
 	}
 
-	return ins, nil
+	return data, nil
+}
+
+func PopulateDataFromPreference(pref *secret.Preference) (data ConfigInternalData, err error) {
+
+	for envName, filePathFolders := range config.DEFAULT_FILE_PATH {
+		path, _ := GetPathFromArray(filePathFolders)
+		if data.eligibleEnvBasedFilePaths == nil {
+			data.eligibleEnvBasedFilePaths = make(map[string]ConfigPath)
+		}
+		data.eligibleEnvBasedFilePaths[envName] = ConfigPath{Path: path}
+	}
+
+	if pref != nil {
+		for envName, filePathFolders := range pref.EnvFilePaths {
+			if !functions.IsAllNonEmpty(filePathFolders...) {
+				return data, fmt.Errorf("config file path for env [%v] cannot be empty : %v", envName, filePathFolders)
+			}
+			path, err := GetPathFromArray(filePathFolders)
+			if err != nil {
+				return data, err
+			}
+			data.eligibleEnvBasedFilePaths[envName] = ConfigPath{Path: path, MustValid: true}
+		}
+	}
+	return data, nil
+}
+
+func PopulateDataFromConfigFilePath(path string, target secret.Service) (err error) {
+	if path == "" {
+		return errors.New("config file path cannot be empty")
+	}
+	configByte, err := ioutil.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("failed to read config file in %v with err: %v", path, err)
+	}
+	err = json.Unmarshal(configByte, &target)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal config file")
+	}
+	return nil
+}
+
+func GetPathFromArray(pathArray []string) (string, error) {
+
+	sanitizedArray := []string{}
+	for _, pa := range pathArray {
+		if pa == "GOPATH" {
+			gopath := os.Getenv("GOPATH")
+			if gopath == "" {
+				return "", fmt.Errorf("GOPATH environment is empty")
+			} else {
+				sanitizedArray = append(sanitizedArray, gopath)
+			}
+		} else {
+			sanitizedArray = append(sanitizedArray, pa)
+		}
+	}
+	return path.Join(sanitizedArray...), nil
+}
+
+type Parameters struct {
+	model.In
+	Env        env.Service
+	Preference *secret.Preference `optional:"true"`
 }
