@@ -52,10 +52,9 @@ func (s *Service) PopulateDataFromPreference(pref *env.Preference) {
 	s.defaultEnv = env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT
 	s.flagNameEnv = env.DEFAULT_FLAG_NAME_ENV
 	s.machineEnvName = env.DEFAULT_MACHINE_ENV_NAME
-	allowedEnvs := map[string]bool{
-		env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT: true,
-		env.DEFAULT_ENV_NAME_ENV_STAGING:     true,
-		env.DEFAULT_ENV_NAME_ENV_PRODUCTION:  true,
+	allowedEnvs := make(map[string]bool)
+	for _, env := range env.DEFAULT_ALLOWED_ENV_NAME {
+		allowedEnvs[env] = true
 	}
 
 	if pref != nil {

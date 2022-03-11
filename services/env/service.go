@@ -11,6 +11,11 @@ var (
 	DEFAULT_ENV_NAME_ENV_DEVELOPMENT = "development"
 	DEFAULT_ENV_NAME_ENV_STAGING     = "staging"
 	DEFAULT_ENV_NAME_ENV_PRODUCTION  = "production"
+	DEFAULT_ALLOWED_ENV_NAME         = []string{
+		DEFAULT_ENV_NAME_ENV_DEVELOPMENT,
+		DEFAULT_ENV_NAME_ENV_STAGING,
+		DEFAULT_ENV_NAME_ENV_PRODUCTION,
+	}
 
 	DEFAULT_FLAG_NAME_ENV = "env"
 
@@ -18,8 +23,24 @@ var (
 )
 
 type Preference struct {
-	DefaultEnv     string // replacing DEFAULT_ENV_NAME_DEVELOPMENT
-	FlagNameEnv    string // replacing DEFAULT_FLAG_NAME_ENV
-	MachineEnvName string // replacing DEFAULT_MACHINE_ENV_NAME
+
+	// default environment name if no environment is found
+	// replacing DEFAULT_ENV_NAME_DEVELOPMENT
+	DefaultEnv string
+
+	// flag name to get environment
+	// example : go run main.go -env=development will start application with development environment
+	// you can change -env flag to other name
+	// replacing DEFAULT_FLAG_NAME_ENV
+	FlagNameEnv string
+
+	// machine environment variable key to get environment
+	// example : apps will find env name from machine environment variable with key : APP_ENV
+	// you can change APP_ENV key to other name
+	// replacing DEFAULT_MACHINE_ENV_NAME
+	MachineEnvName string
+
+	// currently application only allow development, staging, and production as env name
+	// add your custom env name here
 	AdditionalEnvs []string
 }

@@ -23,6 +23,7 @@ func main() {
 		// use this option to start http health service
 		gank.WithHealthHandler(),
 
+		// create custom default env
 		// gank.WithProviders(func() (*env.Preference, error) {
 		// 	return &env.Preference{
 		// 		DefaultEnv: "yahoo",
