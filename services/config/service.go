@@ -6,24 +6,11 @@ import (
 )
 
 type Service struct {
-	Token  Token
 	Server Server
-	Auth   Auth
-}
-
-type Token struct {
-	Duration int64
 }
 
 type Server struct {
 	Port int
-}
-
-type Auth struct {
-	MinLengthNewAccountUsername int
-	MaxLengthNewAccountUsername int
-	MinLengthNewAccountPassword int
-	MaxLengthNewAccountPassword int
 }
 
 var (
