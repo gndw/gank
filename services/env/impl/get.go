@@ -9,7 +9,7 @@ func (s *Service) Get() (env string) {
 }
 
 func (s *Service) IsDevelopment() (isDevelopment bool) {
-	return s.env == env.DEFAULT_ENV_NAME_DEVELOPMENT
+	return s.env == env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT
 }
 
 func (s *Service) IsStaging() (isStaging bool) {

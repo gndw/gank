@@ -2,27 +2,28 @@ package config
 
 import (
 	"github.com/gndw/gank/functions"
+	"github.com/gndw/gank/services/env"
 )
 
-type Service interface {
-	GetToken() Token
-	GetServer() Server
-	GetAuth() Auth
+type Service struct {
+	Token  Token
+	Server Server
+	Auth   Auth
 }
 
-type Token interface {
-	GetDuration() int64
+type Token struct {
+	Duration int64
 }
 
-type Server interface {
-	GetPort() int
+type Server struct {
+	Port int
 }
 
-type Auth interface {
-	GetMinLengthNewAccountUsername() int
-	GetMaxLengthNewAccountUsername() int
-	GetMinLengthNewAccountPassword() int
-	GetMaxLengthNewAccountPassword() int
+type Auth struct {
+	MinLengthNewAccountUsername int
+	MaxLengthNewAccountUsername int
+	MinLengthNewAccountPassword int
+	MaxLengthNewAccountPassword int
 }
 
 var (
@@ -45,16 +46,15 @@ var (
 		return result
 	}
 
-	DEFAULT_FILE_PATH_ON_DEVELOPMENT_SERVER = functions.CombineStringArray(GetDefaultGolangPath(), []string{"github.com", "gndw", "gank"}, GetDefaultDevelopmentConfigFileRelativeToRepo())
-	DEFAULT_FILE_PATH_ON_STAGING_SERVER     = append([]string{"/app"}, GetDefaultStagingConfigFileRelativeToRepo()...)
-	DEFAULT_FILE_PATH_ON_PRODUCTION_SERVER  = append([]string{"/app"}, GetDefaultProductionConfigFileRelativeToRepo()...)
+	DEFAULT_FILE_PATH = map[string][]string{
+		env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT: functions.CombineStringArray(GetDefaultGolangPath(), []string{"github.com", "gndw", "gank"}, GetDefaultDevelopmentConfigFileRelativeToRepo()),
+		env.DEFAULT_ENV_NAME_ENV_STAGING:     append([]string{"/app"}, GetDefaultStagingConfigFileRelativeToRepo()...),
+		env.DEFAULT_ENV_NAME_ENV_PRODUCTION:  append([]string{"/app"}, GetDefaultProductionConfigFileRelativeToRepo()...),
+	}
 )
 
 type Preference struct {
-	FilePathDevelopment    []string
-	FilePathStaging        []string
-	FilePathProduction     []string
-	AdditionalEnvFilePaths map[string][]string // file path based on custom environment
+	EnvFilePaths map[string][]string // file path based on custom environment
 }
 
 func CreatePreference(preference Preference) func() (*Preference, error) {

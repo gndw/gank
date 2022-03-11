@@ -5,6 +5,7 @@ import (
 
 	"github.com/gndw/gank"
 	"github.com/gndw/gank/services/config"
+	"github.com/gndw/gank/services/env"
 )
 
 func main() {
@@ -30,7 +31,9 @@ func main() {
 
 		gank.WithProviders(
 			config.CreatePreference(config.Preference{
-				FilePathDevelopment: config.GetDefaultFilePathUsingRepositoryPath("github.com", "gndwx", "social-story-service"),
+				EnvFilePaths: map[string][]string{
+					env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT: config.GetDefaultFilePathUsingRepositoryPath("github.com", "gndw", "social-story-service"),
+				},
 			}),
 		),
 	)

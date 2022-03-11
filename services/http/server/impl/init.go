@@ -32,7 +32,7 @@ func New(params Parameters) (service server.Service, err error) {
 
 	// Get port from config file
 	if params.Config != nil {
-		port = params.Config.GetServer().GetPort()
+		port = params.Config.Server.Port
 	}
 
 	// Get port from Environment Machine
@@ -90,7 +90,7 @@ func New(params Parameters) (service server.Service, err error) {
 
 type Parameters struct {
 	model.In
-	Config     config.Service `optional:"true"`
+	Config     *config.Service `optional:"true"`
 	Lc         model.Lifecycle
 	Shutdowner model.Shutdowner
 	Router     router.Service

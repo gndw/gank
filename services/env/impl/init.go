@@ -49,13 +49,13 @@ func New(params Parameters) (env.Service, error) {
 
 func (s *Service) PopulateDataFromPreference(pref *env.Preference) {
 
-	s.defaultEnv = env.DEFAULT_ENV_NAME_DEVELOPMENT
+	s.defaultEnv = env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT
 	s.flagNameEnv = env.DEFAULT_FLAG_NAME_ENV
 	s.machineEnvName = env.DEFAULT_MACHINE_ENV_NAME
 	allowedEnvs := map[string]bool{
-		env.DEFAULT_ENV_NAME_DEVELOPMENT:    true,
-		env.DEFAULT_ENV_NAME_ENV_STAGING:    true,
-		env.DEFAULT_ENV_NAME_ENV_PRODUCTION: true,
+		env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT: true,
+		env.DEFAULT_ENV_NAME_ENV_STAGING:     true,
+		env.DEFAULT_ENV_NAME_ENV_PRODUCTION:  true,
 	}
 
 	if pref != nil {

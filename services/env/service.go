@@ -8,9 +8,9 @@ type Service interface {
 }
 
 var (
-	DEFAULT_ENV_NAME_DEVELOPMENT    = "development"
-	DEFAULT_ENV_NAME_ENV_STAGING    = "staging"
-	DEFAULT_ENV_NAME_ENV_PRODUCTION = "production"
+	DEFAULT_ENV_NAME_ENV_DEVELOPMENT = "development"
+	DEFAULT_ENV_NAME_ENV_STAGING     = "staging"
+	DEFAULT_ENV_NAME_ENV_PRODUCTION  = "production"
 
 	DEFAULT_FLAG_NAME_ENV = "env"
 
