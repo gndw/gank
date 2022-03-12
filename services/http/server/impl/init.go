@@ -25,7 +25,7 @@ func New(params Parameters) (service server.Service, err error) {
 
 	handler, err := params.Router.GetHandler()
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	// Get port from config file
@@ -35,6 +35,7 @@ func New(params Parameters) (service server.Service, err error) {
 	portEnv := os.Getenv("PORT")
 	if portEnvInt, err := strconv.Atoi(portEnv); err == nil && portEnvInt > 0 {
 		port = portEnvInt
+		params.Log.Debugf("server.service> using port %v found in machine environment variable", port)
 	}
 
 	serviceInstance := &Service{
