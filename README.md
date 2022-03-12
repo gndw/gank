@@ -4,10 +4,18 @@ My Personal Golang Dev-Kit. This package is intended to wrap many common functio
 
 Included internal services are : logger, http-server, http-router, middlewares (auth, http-response, logger), env, config, secret, hash, token, etc. Included external services are : postgres-db.
 
+## Table of contents
+- [How to Install](#how-to-install)
+	- [How to Create Empty Application](#how-to-create-empty-application)
+	- [How to Create Application with HTTP Health Check](#how-to-create-application-with-http-health-check)
+	- [How to Create your Custom Endpoint](#how-to-create-your-custom-endpoint)
+- [Services](#services)
+- [Other](#other)
+
 ## How to Install
 `go get github.com/gndw/gank`
 
-### :white_check_mark: How to Create Empty Application
+### How to Create Empty Application 
 
 ```go
 package main
@@ -47,7 +55,7 @@ INFO[2022-03-09T00:39:33+07:00] application startup in 410.592µs
 
 <br />
 
-### :white_check_mark: How to Create Application with HTTP Health Check
+### How to Create Application with HTTP Health Check
 ```go
 err := gank.CreateAndRunApp(
   // ... previous code
@@ -76,8 +84,9 @@ Content-Length: 79
 {"data":{"services":[{"service_name":"app","is_healthy":true,"status":"OK"}]}}
 ```
 
+<br />
 
-### :white_check_mark: How to Create your Custom Endpoint
+### How to Create your Custom Endpoint
 ```go
 err := gank.CreateAndRunApp(
   // ... previous code
