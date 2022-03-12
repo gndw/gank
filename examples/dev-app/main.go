@@ -1,11 +1,16 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"errors"
 	"log"
+	"net/http"
 
 	"github.com/gndw/gank"
+	"github.com/gndw/gank/constant"
+	"github.com/gndw/gank/model"
 	"github.com/gndw/gank/services/config"
+	"github.com/gndw/gank/services/http/server"
 	"github.com/gndw/gank/services/secret"
 )
 
@@ -37,11 +42,43 @@ func main() {
 			secret.CreateDevelopmentPreference("github.com", "gndw", "gank"),
 		),
 
-		// test
+		// // test
+		// gank.WithInvokers(
+		// 	func(secretContent secret.Content, configContent config.Content) error {
+		// 		fmt.Println("secret", string(secretContent.Value))
+		// 		fmt.Println("config", string(configContent.Value))
+		// 		return nil
+		// 	},
+		// ),
+
+		// add new http endpoint
 		gank.WithInvokers(
-			func(secretContent secret.Content, configContent config.Content) error {
-				fmt.Println("secret", string(secretContent.Value))
-				fmt.Println("config", string(configContent.Value))
+			func(server server.Service) (err error) {
+
+				// adding OK endpoint
+				err = server.AddHttpHandler(model.AddHTTPRequest{
+					Method:   constant.HTTPMethodGet,
+					Endpoint: "/my-custom-endpoint/ok",
+					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
+						return "OK", nil
+					},
+				})
+				if err != nil {
+					return err
+				}
+
+				// adding Bad Request endpoint
+				err = server.AddHttpHandler(model.AddHTTPRequest{
+					Method:   constant.HTTPMethodGet,
+					Endpoint: "/my-custom-endpoint/bad",
+					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
+						return nil, errors.New("bad request response")
+					},
+				})
+				if err != nil {
+					return err
+				}
+
 				return nil
 			},
 		),
