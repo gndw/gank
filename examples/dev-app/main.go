@@ -4,6 +4,9 @@ import (
 	"log"
 
 	"github.com/gndw/gank"
+	"github.com/gndw/gank/services/config"
+	"github.com/gndw/gank/services/env"
+	"github.com/gndw/gank/services/secret"
 )
 
 func main() {
@@ -29,13 +32,22 @@ func main() {
 		// }),
 
 		// add custom config file
-		// gank.WithProviders(
-		// 	config.CreatePreference(config.Preference{
-		// 		EnvFilePaths: map[string][]string{
-		// 			env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT: config.GetDefaultFilePathUsingRepositoryPath("github.com", "gndw", "gank"),
-		// 		},
-		// 	}),
-		// ),
+		gank.WithProviders(
+			config.CreatePreference(config.Preference{
+				EnvFilePaths: map[string][]string{
+					env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT: config.GetDefaultFilePathUsingRepositoryPath("github.com", "gndw", "gank"),
+				},
+			}),
+		),
+
+		// add custom secret file
+		gank.WithProviders(
+			secret.CreatePreference(secret.Preference{
+				EnvFilePaths: map[string][]string{
+					env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT: secret.GetDefaultFilePathUsingRepositoryPath("github.com", "gndw", "gank"),
+				},
+			}),
+		),
 	)
 	if err != nil {
 		log.Fatal(err)
