@@ -46,6 +46,8 @@ var (
 		env.DEFAULT_ENV_NAME_ENV_STAGING:    append([]string{"/app"}, GetDefaultStagingSecretFileRelativeToRepo()...),
 		env.DEFAULT_ENV_NAME_ENV_PRODUCTION: append([]string{"/app"}, GetDefaultProductionSecretFileRelativeToRepo()...),
 	}
+
+	DEFAULT_SECRET = Service{}
 )
 
 type Preference struct {
@@ -57,4 +59,16 @@ type Preference struct {
 
 func CreatePreference(preference Preference) func() (*Preference, error) {
 	return func() (*Preference, error) { return &preference, nil }
+}
+
+type Content struct {
+	Value []byte
+}
+
+func CreateDevelopmentPreference(secretFileFolders ...string) func() (*Preference, error) {
+	return CreatePreference(Preference{
+		EnvFilePaths: map[string][]string{
+			env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT: GetDefaultFilePathUsingRepositoryPath(secretFileFolders...),
+		},
+	})
 }

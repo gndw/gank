@@ -1,7 +1,6 @@
 package impl
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -14,6 +13,7 @@ import (
 	"github.com/gndw/gank/services/env"
 	"github.com/gndw/gank/services/secret"
 	"github.com/gndw/gank/services/utils/log"
+	"github.com/gndw/gank/services/utils/marshal"
 )
 
 type ConfigInternalData struct {
@@ -25,19 +25,22 @@ type ConfigPath struct {
 	Path      string
 }
 
-func New(params Parameters) (data secret.Service, err error) {
+func New(params Parameters) (data secret.Service, content secret.Content, err error) {
+
+	data = secret.DEFAULT_SECRET
 
 	internalData, err := PopulateDataFromPreference(params.Preference)
 	if err != nil {
-		return data, err
+		return data, content, err
 	}
 
 	configPath, exist := internalData.eligibleEnvBasedFilePaths[params.Env.Get()]
 	if exist {
-		err := PopulateDataFromSecretFilePath(configPath.Path, &data)
+		contentByte, err := PopulateDataFromSecretFilePath(params.Marshal, configPath.Path, &data)
+		content.Value = contentByte
 		if err != nil {
 			if configPath.MustValid {
-				return data, err
+				return data, content, err
 			} else {
 				params.Log.Debugf("secret.service> failed to load default secret file for env[%v]. returning empty secret file", params.Env.Get())
 			}
@@ -48,7 +51,7 @@ func New(params Parameters) (data secret.Service, err error) {
 		params.Log.Debugln("secret.service> no secret file path. returning empty secret file")
 	}
 
-	return data, nil
+	return data, content, nil
 }
 
 func PopulateDataFromPreference(pref *secret.Preference) (data ConfigInternalData, err error) {
@@ -76,19 +79,19 @@ func PopulateDataFromPreference(pref *secret.Preference) (data ConfigInternalDat
 	return data, nil
 }
 
-func PopulateDataFromSecretFilePath(path string, target *secret.Service) (err error) {
+func PopulateDataFromSecretFilePath(marshal marshal.Service, path string, target *secret.Service) (secretByte []byte, err error) {
 	if path == "" {
-		return errors.New("secret file path cannot be empty")
+		return secretByte, errors.New("secret file path cannot be empty")
 	}
-	configByte, err := ioutil.ReadFile(path)
+	secretByte, err = ioutil.ReadFile(path)
 	if err != nil {
-		return fmt.Errorf("failed to read secret file in %v with err: %v", path, err)
+		return secretByte, fmt.Errorf("failed to read secret file in %v with err: %v", path, err)
 	}
-	err = json.Unmarshal(configByte, target)
+	err = marshal.JsonUnmarshal(secretByte, target)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal secret file %v with err: %v", path, err)
+		return secretByte, fmt.Errorf("failed to unmarshal secret file %v with err: %v", path, err)
 	}
-	return nil
+	return secretByte, nil
 }
 
 func GetPathFromArray(pathArray []string) (string, error) {
@@ -113,5 +116,6 @@ type Parameters struct {
 	model.In
 	Env        env.Service
 	Log        log.Service
+	Marshal    marshal.Service
 	Preference *secret.Preference `optional:"true"`
 }

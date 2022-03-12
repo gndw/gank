@@ -12,7 +12,7 @@ import (
 	"github.com/gndw/gank/services/config"
 	"github.com/gndw/gank/services/env"
 	"github.com/gndw/gank/services/utils/log"
-	"gopkg.in/yaml.v2"
+	"github.com/gndw/gank/services/utils/marshal"
 )
 
 type ConfigInternalData struct {
@@ -24,21 +24,22 @@ type ConfigPath struct {
 	Path      string
 }
 
-func New(params Parameters) (data config.Service, err error) {
+func New(params Parameters) (data config.Service, content config.Content, err error) {
 
 	data = config.DEFAULT_CONFIG
 
 	internalData, err := PopulateDataFromPreference(params.Preference)
 	if err != nil {
-		return data, err
+		return data, content, err
 	}
 
 	configPath, exist := internalData.eligibleEnvBasedFilePaths[params.Env.Get()]
 	if exist {
-		err := PopulateDataFromConfigFilePath(configPath.Path, &data)
+		contentByte, err := PopulateDataFromConfigFilePath(params.Marshal, configPath.Path, &data)
+		content.Value = contentByte
 		if err != nil {
 			if configPath.MustValid {
-				return data, err
+				return data, content, err
 			} else {
 				params.Log.Debugf("config.service> failed to load default config file for env[%v]. returning empty config file", params.Env.Get())
 			}
@@ -49,7 +50,7 @@ func New(params Parameters) (data config.Service, err error) {
 		params.Log.Debugln("config.service> no config file path. returning empty config file")
 	}
 
-	return data, nil
+	return data, content, nil
 }
 
 func PopulateDataFromPreference(pref *config.Preference) (data ConfigInternalData, err error) {
@@ -77,19 +78,19 @@ func PopulateDataFromPreference(pref *config.Preference) (data ConfigInternalDat
 	return data, nil
 }
 
-func PopulateDataFromConfigFilePath(path string, target *config.Service) (err error) {
+func PopulateDataFromConfigFilePath(marshal marshal.Service, path string, target *config.Service) (configByte []byte, err error) {
 	if path == "" {
-		return errors.New("config file path cannot be empty")
+		return configByte, errors.New("config file path cannot be empty")
 	}
-	configByte, err := ioutil.ReadFile(path)
+	configByte, err = ioutil.ReadFile(path)
 	if err != nil {
-		return fmt.Errorf("failed to read config file in %v with err: %v", path, err)
+		return configByte, fmt.Errorf("failed to read config file in %v with err: %v", path, err)
 	}
-	err = yaml.Unmarshal(configByte, target)
+	err = marshal.YamlUnmarshal(configByte, target)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal config file %v with err: %v", path, err)
+		return configByte, fmt.Errorf("failed to unmarshal config file %v with err: %v", path, err)
 	}
-	return nil
+	return configByte, nil
 }
 
 func GetPathFromArray(pathArray []string) (string, error) {
@@ -114,5 +115,6 @@ type Parameters struct {
 	model.In
 	Env        env.Service
 	Log        log.Service
+	Marshal    marshal.Service
 	Preference *config.Preference `optional:"true"`
 }

@@ -15,6 +15,7 @@ import (
 	"github.com/gndw/gank/services/secret"
 	"github.com/gndw/gank/services/utils/hash"
 	"github.com/gndw/gank/services/utils/log"
+	"github.com/gndw/gank/services/utils/marshal"
 	"github.com/gndw/gank/services/utils/token"
 
 	lifecyclerService "github.com/gndw/gank/services/lifecycler/impl"
@@ -26,6 +27,7 @@ import (
 	serverService "github.com/gndw/gank/services/http/server/impl"
 	middlewareService "github.com/gndw/gank/services/middlewares/impl"
 	secretService "github.com/gndw/gank/services/secret/impl"
+	marshalService "github.com/gndw/gank/services/utils/marshal/impl"
 
 	routerService "github.com/gndw/gank/services/http/router/impl"
 	hashService "github.com/gndw/gank/services/utils/hash/impl"
@@ -43,6 +45,7 @@ var (
 	MiddlewaresKey reflect.Type = reflect.TypeOf(func(middlewares.Service) {}).In(0)
 	SecretKey      reflect.Type = reflect.TypeOf(func(secret.Service) {}).In(0)
 	FlagKey        reflect.Type = reflect.TypeOf(func(flag.Service) {}).In(0)
+	MarshalKey     reflect.Type = reflect.TypeOf(func(marshal.Service) {}).In(0)
 
 	DbKey     reflect.Type = reflect.TypeOf(func(db.Service) {}).In(0)
 	RouterKey reflect.Type = reflect.TypeOf(func(router.Service) {}).In(0)
@@ -129,6 +132,7 @@ func GetDefaultInternalProviders() (providers map[reflect.Type]interface{}) {
 		MiddlewaresKey: middlewareService.New,
 		SecretKey:      secretService.New,
 		FlagKey:        flagService.New,
+		MarshalKey:     marshalService.New,
 
 		RouterKey: routerService.NewGochi,
 		HashKey:   hashService.NewBcript,
