@@ -1,7 +1,0 @@
-package %PACKAGE_NAME%
-
-import "context"
-
-type %TYPE% interface {
-	Test(ctx context.Context) (err error)
-}

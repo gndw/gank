@@ -1,7 +1,0 @@
-package impl
-
-import "context"
-
-func (%MINI_TYPE% *%TYPE%) Test(ctx context.Context) (err error) {
-	return nil
-}
