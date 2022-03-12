@@ -24,9 +24,9 @@ type Token struct {
 
 var (
 	GetDefaultGolangPath                          = func() []string { return []string{"GOPATH", "src"} }
-	GetDefaultDevelopmentSecretFileRelativeToRepo = func() []string { return []string{"files", "var", "secret", "ss.development.secret.yaml"} }
-	GetDefaultStagingSecretFileRelativeToRepo     = func() []string { return []string{"files", "var", "secret", "ss.staging.secret.yaml"} }
-	GetDefaultProductionSecretFileRelativeToRepo  = func() []string { return []string{"files", "var", "secret", "ss.production.secret.yaml"} }
+	GetDefaultDevelopmentSecretFileRelativeToRepo = func() []string { return []string{"files", "var", "secret", "ss.development.secret.json"} }
+	GetDefaultStagingSecretFileRelativeToRepo     = func() []string { return []string{"files", "var", "secret", "ss.staging.secret.json"} }
+	GetDefaultProductionSecretFileRelativeToRepo  = func() []string { return []string{"files", "var", "secret", "ss.production.secret.json"} }
 
 	GetDefaultFilePathUsingRepositoryPath = func(pathToRepo ...string) []string {
 		result := functions.CombineStringArray(
