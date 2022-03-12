@@ -12,9 +12,6 @@ type AddHTTPRequest struct {
 	Endpoint       string
 	IsActivateAuth bool
 	Handler        Middleware
-
-	// flag to always return response when auth is error, only if flag `IsActivateAuth` is true
-	IsBypassIfAuthErrorButReturnStatusUnauthorized bool
 }
 
 type HTTPResponse struct {

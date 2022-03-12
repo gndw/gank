@@ -15,6 +15,11 @@ type Service struct {
 }
 
 func New(log log.Service, token token.Service) (middlewares.Service, error) {
+
+	if !token.IsValid() {
+		log.Debugf("middleware service is receiving invalid token service")
+	}
+
 	ins := &Service{
 		logService:   log,
 		tokenService: token,

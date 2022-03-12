@@ -11,16 +11,12 @@ import (
 	"github.com/gndw/gank/model"
 )
 
-func (s *Service) GetAuthMiddleware(isActivateAuth bool, IsBypassIfAuthErrorButReturnStatusUnauthorized bool, f model.Middleware) model.Middleware {
+func (s *Service) GetAuthMiddleware(isActivateAuth bool, f model.Middleware) model.Middleware {
 	return func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 
 		if isActivateAuth {
 			ctx, err = s.ValidateAuthFromHeader(ctx, r)
 			if err != nil {
-				if IsBypassIfAuthErrorButReturnStatusUnauthorized {
-					resp, err := f(ctx, rw, r)
-					return resp, errorsg.WithOptions(err, errorsg.WithStatusCode(http.StatusUnauthorized))
-				}
 				return nil, errorsg.WithOptions(err, errorsg.WithStatusCode(http.StatusUnauthorized))
 			}
 		}
@@ -63,4 +59,8 @@ func (s *Service) ValidateAuthFromHeader(ctx context.Context, r *http.Request) (
 	} else {
 		return ctx, errors.New("no valid authorization found")
 	}
+}
+
+func (s *Service) IsAuthMiddlewareValid() (isValid bool) {
+	return s.tokenService.IsValid()
 }

@@ -6,4 +6,5 @@ import (
 
 type Service interface {
 	AddHttpHandler(req model.AddHTTPRequest) (err error)
+	IsAuthRouterValid() (isValid bool)
 }

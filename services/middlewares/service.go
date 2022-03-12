@@ -9,5 +9,6 @@ import (
 type Service interface {
 	GetHttpMiddleware(f model.Middleware) http.HandlerFunc
 	GetLoggerMiddleware() func(next http.Handler) http.Handler
-	GetAuthMiddleware(isActivateAuth bool, IsBypassIfAuthErrorButReturnStatusUnauthorized bool, f model.Middleware) model.Middleware
+	GetAuthMiddleware(isActivateAuth bool, f model.Middleware) model.Middleware
+	IsAuthMiddlewareValid() (isValid bool)
 }
