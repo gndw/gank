@@ -28,7 +28,7 @@ func WithPrivateIdentifier(identifier string) BuildOptions {
 		if err.PrivateIdentifier == nil {
 			err.PrivateIdentifier = &[]string{}
 		}
-		if !IsHavingPrivateIdentifier(&err, identifier) {
+		if !HasPrivateIdentifier(&err, identifier) {
 			*err.PrivateIdentifier = append(*err.PrivateIdentifier, identifier)
 		}
 		return err
@@ -44,7 +44,7 @@ func GetPrivateIdentifier(err error) (isExist bool, privateIdentifier []string) 
 	}
 }
 
-func IsHavingPrivateIdentifier(err error, privateIdentifier string) (isExistOrHave bool) {
+func HasPrivateIdentifier(err error, privateIdentifier string) (isExistOrHave bool) {
 	customError, ok := err.(*CustomError)
 	if ok && customError.PrivateIdentifier != nil {
 		for _, pi := range *customError.PrivateIdentifier {
