@@ -14,7 +14,6 @@ import (
 type Service struct {
 	env            string
 	defaultEnv     string
-	flagNameEnv    string
 	machineEnvName string
 	allowedEnvs    map[string]bool
 }
@@ -51,9 +50,9 @@ func (s *Service) PopulateDataFromPreference(pref *env.Preference) {
 
 	s.defaultEnv = env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT
 	s.machineEnvName = env.DEFAULT_MACHINE_ENV_NAME
-	allowedEnvs := make(map[string]bool)
+	s.allowedEnvs = make(map[string]bool)
 	for _, env := range env.DEFAULT_ALLOWED_ENV_NAME {
-		allowedEnvs[env] = true
+		s.allowedEnvs[env] = true
 	}
 
 	if pref != nil {
@@ -64,7 +63,7 @@ func (s *Service) PopulateDataFromPreference(pref *env.Preference) {
 			s.machineEnvName = pref.MachineEnvName
 		}
 		for _, addEnv := range pref.AdditionalEnvs {
-			allowedEnvs[addEnv] = true
+			s.allowedEnvs[addEnv] = true
 		}
 	}
 
@@ -76,7 +75,7 @@ func (s *Service) PopulateEnvNameFromFlag(flagEnv *string) (isValid bool, err er
 			s.env = *flagEnv
 			return true, nil
 		} else {
-			return false, fmt.Errorf("environment variable [%v] found in flag [%v] is not allowed", *flagEnv, s.flagNameEnv)
+			return false, fmt.Errorf("environment variable [%v] found is not allowed", *flagEnv)
 		}
 	}
 	return false, nil
