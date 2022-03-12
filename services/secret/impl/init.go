@@ -13,6 +13,7 @@ import (
 	"github.com/gndw/gank/services/config"
 	"github.com/gndw/gank/services/env"
 	"github.com/gndw/gank/services/secret"
+	"github.com/gndw/gank/services/utils/log"
 )
 
 type ConfigInternalData struct {
@@ -33,12 +34,18 @@ func New(params Parameters) (data secret.Service, err error) {
 
 	configPath, exist := internalData.eligibleEnvBasedFilePaths[params.Env.Get()]
 	if exist {
-		err := PopulateDataFromConfigFilePath(configPath.Path, data)
+		err := PopulateDataFromSecretFilePath(configPath.Path, &data)
 		if err != nil {
 			if configPath.MustValid {
 				return data, err
+			} else {
+				params.Log.Debugf("secret.service> failed to load default secret file for env[%v]. returning empty secret file", params.Env.Get())
 			}
+		} else {
+			params.Log.Debugf("secret.service> successfully populate secret using file from %v", configPath.Path)
 		}
+	} else {
+		params.Log.Debugln("secret.service> no secret file path. returning empty secret file")
 	}
 
 	return data, nil
@@ -69,17 +76,17 @@ func PopulateDataFromPreference(pref *secret.Preference) (data ConfigInternalDat
 	return data, nil
 }
 
-func PopulateDataFromConfigFilePath(path string, target secret.Service) (err error) {
+func PopulateDataFromSecretFilePath(path string, target *secret.Service) (err error) {
 	if path == "" {
-		return errors.New("config file path cannot be empty")
+		return errors.New("secret file path cannot be empty")
 	}
 	configByte, err := ioutil.ReadFile(path)
 	if err != nil {
-		return fmt.Errorf("failed to read config file in %v with err: %v", path, err)
+		return fmt.Errorf("failed to read secret file in %v with err: %v", path, err)
 	}
-	err = json.Unmarshal(configByte, &target)
+	err = json.Unmarshal(configByte, target)
 	if err != nil {
-		return fmt.Errorf("failed to unmarshal config file")
+		return fmt.Errorf("failed to unmarshal secret file %v with err: %v", path, err)
 	}
 	return nil
 }
@@ -105,5 +112,6 @@ func GetPathFromArray(pathArray []string) (string, error) {
 type Parameters struct {
 	model.In
 	Env        env.Service
+	Log        log.Service
 	Preference *secret.Preference `optional:"true"`
 }

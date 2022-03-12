@@ -31,6 +31,7 @@ func New(params Parameters) (env.Service, error) {
 	if err != nil {
 		return nil, err
 	} else if isExistFromFlag {
+		params.Log.Debugf("env.service> found env: %v from flag", ins.Get())
 		return ins, nil
 	}
 
@@ -38,11 +39,13 @@ func New(params Parameters) (env.Service, error) {
 	if err != nil {
 		return nil, err
 	} else if isExistFromMachineEnvVar {
+		params.Log.Debugf("env.service> found env: %v from machine env-var", ins.Get())
 		return ins, nil
 	}
 
 	// use default env
 	ins.env = ins.defaultEnv
+	params.Log.Debugf("env.service> default env: %v is used", ins.Get())
 	return ins, nil
 }
 

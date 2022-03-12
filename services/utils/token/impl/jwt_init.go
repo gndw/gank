@@ -14,7 +14,7 @@ func NewJWT(secret secret.Service, log log.Service) (token.Service, error) {
 
 	key := secret.Token.Key
 	if key == "" {
-		log.Debugln("jwt token key not found")
+		log.Debugln("token.service> jwt token key not found")
 	}
 
 	return &Service{

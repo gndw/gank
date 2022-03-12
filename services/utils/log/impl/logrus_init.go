@@ -19,6 +19,7 @@ func NewLogrus(flag flag.Service) (log.Service, error) {
 
 	if flag.Verbose != nil && *flag.Verbose {
 		logrus.SetLevel(logrus.TraceLevel)
+		ins.Debugln("log.service> verbose flag is active")
 	}
 
 	return ins, nil
