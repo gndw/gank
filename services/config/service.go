@@ -6,11 +6,11 @@ import (
 )
 
 type Service struct {
-	Server Server
+	Server Server `yaml:"server"`
 }
 
 type Server struct {
-	Port int
+	Port int `yaml:"port"`
 }
 
 var (

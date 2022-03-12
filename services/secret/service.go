@@ -6,20 +6,20 @@ import (
 )
 
 type Service struct {
-	Database Database
-	Token    Token
+	Database Database `json:"database"`
+	Token    Token    `json:"token"`
 }
 
 type Database struct {
-	User     string
-	Password string
-	Host     string
-	Port     int
-	DBName   string
+	User     string `json:"user"`
+	Password string `json:"password"`
+	Host     string `json:"host"`
+	Port     int    `json:"port"`
+	DBName   string `json:"db_name"`
 }
 
 type Token struct {
-	Key string
+	Key string `json:"key"`
 }
 
 var (
