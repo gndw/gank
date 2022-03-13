@@ -28,26 +28,26 @@ func main() {
 		gank.WithInvokers(
 			func(server server.Service) (err error) {
 
-				// adding OK endpoint
-				err = server.AddHttpHandler(model.AddHTTPRequest{
-					Method:   constant.HTTPMethodGet,
-					Endpoint: "/my-custom-endpoint/ok",
-					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
-						return "OK", nil
-					},
-				})
-				if err != nil {
-					return err
-				}
+				err = server.AddHttpHandlers(
 
-				// adding Bad Request endpoint
-				err = server.AddHttpHandler(model.AddHTTPRequest{
-					Method:   constant.HTTPMethodGet,
-					Endpoint: "/my-custom-endpoint/bad",
-					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
-						return nil, errors.New("bad request response")
+					// adding OK endpoint
+					model.AddHTTPRequest{
+						Method:   constant.HTTPMethodGet,
+						Endpoint: "/my-custom-endpoint/ok",
+						Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
+							return "OK", nil
+						},
 					},
-				})
+
+					// adding Bad Request endpoint
+					model.AddHTTPRequest{
+						Method:   constant.HTTPMethodGet,
+						Endpoint: "/my-custom-endpoint/bad",
+						Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
+							return nil, errors.New("bad request response")
+						},
+					},
+				)
 				if err != nil {
 					return err
 				}
