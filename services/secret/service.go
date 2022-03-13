@@ -47,7 +47,14 @@ var (
 		env.DEFAULT_ENV_NAME_ENV_PRODUCTION: append([]string{"/app"}, GetDefaultProductionSecretFileRelativeToRepo()...),
 	}
 
+	DEFAULT_MACHINE_VAR = map[string]string{
+		env.DEFAULT_ENV_NAME_ENV_STAGING:    DEFAULT_MACHINE_SECRET_NAME,
+		env.DEFAULT_ENV_NAME_ENV_PRODUCTION: DEFAULT_MACHINE_SECRET_NAME,
+	}
+
 	DEFAULT_SECRET = Service{}
+
+	DEFAULT_MACHINE_SECRET_NAME = "APP_SECRET"
 )
 
 type Preference struct {
@@ -55,6 +62,11 @@ type Preference struct {
 	// add your custom file path based on env here
 	// example EnvFilePaths["my-custom-env"] = []string{ "/app","files","my-custom-secret-file.json" }
 	EnvFilePaths map[string][]string
+
+	// currently application will check machine environment variable if file is not found as a file.
+	// add your custom machine var based on env here
+	// example EnvMachineVar["my-custom-env"] = APP_CUSTOM_SECRET
+	EnvMachineVar map[string]string
 }
 
 func CreatePreference(preference Preference) func() (*Preference, error) {
