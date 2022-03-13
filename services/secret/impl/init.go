@@ -29,7 +29,7 @@ func New(params Parameters) (data secret.Service, content secret.Content, err er
 
 	data = secret.DEFAULT_SECRET
 
-	internalData, err := PopulateDataFromPreference(params.Preference)
+	internalData, err := PopulateDataFromPreference(params.Env.Get(), params.Preference)
 	if err != nil {
 		return data, content, err
 	}
@@ -74,40 +74,54 @@ func New(params Parameters) (data secret.Service, content secret.Content, err er
 	return data, content, nil
 }
 
-func PopulateDataFromPreference(pref *secret.Preference) (data ConfigInternalData, err error) {
+func PopulateDataFromPreference(currentEnv string, pref *secret.Preference) (data ConfigInternalData, err error) {
 
 	for envName, filePathFolders := range secret.DEFAULT_FILE_PATH {
-		path, _ := GetPathFromArray(filePathFolders)
-		if data.eligibleEnvBasedFilePaths == nil {
-			data.eligibleEnvBasedFilePaths = make(map[string]ConfigPath)
+		if envName == currentEnv {
+			path, _ := GetPathFromArray(filePathFolders)
+			if data.eligibleEnvBasedFilePaths == nil {
+				data.eligibleEnvBasedFilePaths = make(map[string]ConfigPath)
+			}
+			data.eligibleEnvBasedFilePaths[envName] = ConfigPath{Value: path}
 		}
-		data.eligibleEnvBasedFilePaths[envName] = ConfigPath{Value: path}
 	}
 
 	for envName, machineKey := range secret.DEFAULT_MACHINE_VAR {
-		if data.eligibleEnvBasedMachineKeys == nil {
-			data.eligibleEnvBasedMachineKeys = make(map[string]ConfigPath)
+		if envName == currentEnv {
+			if data.eligibleEnvBasedMachineKeys == nil {
+				data.eligibleEnvBasedMachineKeys = make(map[string]ConfigPath)
+			}
+			data.eligibleEnvBasedMachineKeys[envName] = ConfigPath{Value: machineKey}
 		}
-		data.eligibleEnvBasedMachineKeys[envName] = ConfigPath{Value: machineKey}
 	}
 
 	if pref != nil {
 		for envName, filePathFolders := range pref.EnvFilePaths {
-			if !functions.IsAllNonEmpty(filePathFolders...) {
-				return data, fmt.Errorf("secret file path for env [%v] cannot be empty : %v", envName, filePathFolders)
+			if envName == currentEnv {
+				if !functions.IsAllNonEmpty(filePathFolders...) {
+					return data, fmt.Errorf("secret file path for env [%v] cannot be empty : %v", envName, filePathFolders)
+				}
+				path, err := GetPathFromArray(filePathFolders)
+				if err != nil {
+					return data, err
+				}
+				if data.eligibleEnvBasedFilePaths == nil {
+					data.eligibleEnvBasedFilePaths = make(map[string]ConfigPath)
+				}
+				data.eligibleEnvBasedFilePaths[envName] = ConfigPath{Value: path, MustValid: true}
 			}
-			path, err := GetPathFromArray(filePathFolders)
-			if err != nil {
-				return data, err
-			}
-			data.eligibleEnvBasedFilePaths[envName] = ConfigPath{Value: path, MustValid: true}
 		}
 
 		for envName, machineVar := range pref.EnvMachineVar {
-			if !functions.IsAllNonEmpty(machineVar) {
-				return data, fmt.Errorf("secret machine env-var for env [%v] cannot be empty : %v", envName, machineVar)
+			if envName == currentEnv {
+				if !functions.IsAllNonEmpty(machineVar) {
+					return data, fmt.Errorf("secret machine env-var for env [%v] cannot be empty : %v", envName, machineVar)
+				}
+				if data.eligibleEnvBasedMachineKeys == nil {
+					data.eligibleEnvBasedMachineKeys = make(map[string]ConfigPath)
+				}
+				data.eligibleEnvBasedMachineKeys[envName] = ConfigPath{Value: machineVar, MustValid: true}
 			}
-			data.eligibleEnvBasedMachineKeys[envName] = ConfigPath{Value: machineVar, MustValid: true}
 		}
 	}
 	return data, nil
