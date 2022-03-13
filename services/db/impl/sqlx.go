@@ -77,6 +77,6 @@ func (t *Transaction) Get(ctx context.Context, dests []interface{}, query string
 }
 
 func (t *Transaction) Exec(ctx context.Context, query string, args ...interface{}) (err error) {
-	_, err = t.tx.ExecContext(ctx, query, args)
+	_, err = t.tx.ExecContext(ctx, query, args...)
 	return err
 }
