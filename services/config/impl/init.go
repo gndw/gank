@@ -28,7 +28,7 @@ func New(params Parameters) (data config.Service, content config.Content, err er
 
 	data = config.DEFAULT_CONFIG
 
-	internalData, err := PopulateDataFromPreference(params.Preference)
+	internalData, err := PopulateDataFromPreference(params.Env.Get(), params.Preference)
 	if err != nil {
 		return data, content, err
 	}
@@ -53,26 +53,30 @@ func New(params Parameters) (data config.Service, content config.Content, err er
 	return data, content, nil
 }
 
-func PopulateDataFromPreference(pref *config.Preference) (data ConfigInternalData, err error) {
+func PopulateDataFromPreference(currentEnv string, pref *config.Preference) (data ConfigInternalData, err error) {
 
 	for envName, filePathFolders := range config.DEFAULT_FILE_PATH {
-		path, _ := GetPathFromArray(filePathFolders)
-		if data.eligibleEnvBasedFilePaths == nil {
-			data.eligibleEnvBasedFilePaths = make(map[string]ConfigPath)
+		if envName == currentEnv {
+			path, _ := GetPathFromArray(filePathFolders)
+			if data.eligibleEnvBasedFilePaths == nil {
+				data.eligibleEnvBasedFilePaths = make(map[string]ConfigPath)
+			}
+			data.eligibleEnvBasedFilePaths[envName] = ConfigPath{Path: path}
 		}
-		data.eligibleEnvBasedFilePaths[envName] = ConfigPath{Path: path}
 	}
 
 	if pref != nil {
 		for envName, filePathFolders := range pref.EnvFilePaths {
-			if !functions.IsAllNonEmpty(filePathFolders...) {
-				return data, fmt.Errorf("config file path for env [%v] cannot be empty : %v", envName, filePathFolders)
+			if envName == currentEnv {
+				if !functions.IsAllNonEmpty(filePathFolders...) {
+					return data, fmt.Errorf("config file path for env [%v] cannot be empty : %v", envName, filePathFolders)
+				}
+				path, err := GetPathFromArray(filePathFolders)
+				if err != nil {
+					return data, err
+				}
+				data.eligibleEnvBasedFilePaths[envName] = ConfigPath{Path: path, MustValid: true}
 			}
-			path, err := GetPathFromArray(filePathFolders)
-			if err != nil {
-				return data, err
-			}
-			data.eligibleEnvBasedFilePaths[envName] = ConfigPath{Path: path, MustValid: true}
 		}
 	}
 	return data, nil
