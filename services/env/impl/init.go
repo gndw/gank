@@ -2,104 +2,109 @@ package impl
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/gndw/gank/functions"
 	"github.com/gndw/gank/model"
 	"github.com/gndw/gank/services/env"
 	"github.com/gndw/gank/services/flag"
 	"github.com/gndw/gank/services/utils/log"
+	"github.com/gndw/gank/services/utils/machinevar"
 )
 
 type Service struct {
 	env            string
-	defaultEnv     string
-	machineEnvName string
-	allowedEnvs    map[string]bool
+	isReleaseLevel bool
 }
 
 func New(params Parameters) (env.Service, error) {
 
 	ins := &Service{}
-	ins.PopulateDataFromPreference(params.Preference)
-
+	allowedEnvs := ins.GetAllowedEnv(params.Preference)
 	defer func() {
 		params.Log.Infof("starting application with env: %v", ins.Get())
 	}()
 
-	isExistFromFlag, err := ins.PopulateEnvNameFromFlag(params.Flag.Env)
+	// get environment from flag
+	env, isValidFromFlag, err := ins.GetEnvNameFromFlag(params.Flag, allowedEnvs)
 	if err != nil {
 		return nil, err
-	} else if isExistFromFlag {
-		params.Log.Debugf("env.service> found env: %v from flag", ins.Get())
+	} else if isValidFromFlag {
+		ins.env = env.EnvName
+		ins.isReleaseLevel = env.IsReleaseLevel
+		params.Log.Debugf("env.service> found env [%v] with release level [%v] from flag -env", env.EnvName, env.IsReleaseLevel)
 		return ins, nil
 	}
 
-	isExistFromMachineEnvVar, err := ins.PopulateEnvNameFromEnvMachineVar()
+	// get environment from machine variable
+	machineKey := ins.GetMachineVarKeyForGetEnv(params.Preference)
+	env, isValidFromMachinevar, err := ins.GetEnvNameFromMachinevar(params.Machinevar, machineKey, allowedEnvs)
 	if err != nil {
 		return nil, err
-	} else if isExistFromMachineEnvVar {
-		params.Log.Debugf("env.service> found env: %v from machine env-var", ins.Get())
+	} else if isValidFromMachinevar {
+		ins.env = env.EnvName
+		ins.isReleaseLevel = env.IsReleaseLevel
+		params.Log.Debugf("env.service> found env [%v] with release level [%v] from Machine Environment Variable with key [%v]", env.EnvName, env.IsReleaseLevel, machineKey)
 		return ins, nil
 	}
 
 	// use default env
-	ins.env = ins.defaultEnv
-	params.Log.Debugf("env.service> default env: %v is used", ins.Get())
+	ins.env = ins.GetDefaultEnv(params.Preference)
+	params.Log.Debugf("env.service> no env found in flag & machine-var. default env: %v is used", ins.Get())
 	return ins, nil
 }
 
-func (s *Service) PopulateDataFromPreference(pref *env.Preference) {
-
-	s.defaultEnv = env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT
-	s.machineEnvName = env.DEFAULT_MACHINE_ENV_NAME
-	s.allowedEnvs = make(map[string]bool)
-	for _, env := range env.DEFAULT_ALLOWED_ENV_NAME {
-		s.allowedEnvs[env] = true
-	}
-
+func (s *Service) GetAllowedEnv(pref *env.Preference) (allowedEnvs []env.EnvLevel) {
+	allowedEnvs = env.DEFAULT_ALLOWED_ENV_NAME
 	if pref != nil {
-		if functions.IsAllNonEmpty(pref.DefaultEnv) {
-			s.defaultEnv = pref.DefaultEnv
-		}
-		if functions.IsAllNonEmpty(pref.MachineEnvName) {
-			s.machineEnvName = pref.MachineEnvName
-		}
-		for _, addEnv := range pref.AdditionalEnvs {
-			s.allowedEnvs[addEnv] = true
-		}
+		allowedEnvs = append(allowedEnvs, pref.AdditionalEnvs...)
 	}
-
+	return allowedEnvs
 }
 
-func (s *Service) PopulateEnvNameFromFlag(flagEnv *string) (isValid bool, err error) {
-	if flagEnv != nil && *flagEnv != "" {
-		if allow, exist := s.allowedEnvs[*flagEnv]; exist && allow {
-			s.env = *flagEnv
-			return true, nil
-		} else {
-			return false, fmt.Errorf("environment variable [%v] found is not allowed", *flagEnv)
-		}
+func (s *Service) GetMachineVarKeyForGetEnv(pref *env.Preference) (machinevarKey string) {
+	if pref != nil && pref.MachineEnvName != "" {
+		return pref.MachineEnvName
 	}
-	return false, nil
+	return env.DEFAULT_MACHINE_ENV_NAME
 }
 
-func (s *Service) PopulateEnvNameFromEnvMachineVar() (isValid bool, err error) {
-	env := os.Getenv(s.machineEnvName)
-	if env != "" {
-		if allow, exist := s.allowedEnvs[env]; exist && allow {
-			s.env = env
-			return true, nil
-		} else {
-			return false, fmt.Errorf("environment variable [%v] found in machine variable [%v] not allowed", env, s.machineEnvName)
-		}
+func (s *Service) GetDefaultEnv(pref *env.Preference) (machinevarKey string) {
+	if pref != nil && pref.DefaultEnv != "" {
+		return pref.DefaultEnv
 	}
-	return false, nil
+	return env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT
+}
+
+func (s *Service) GetEnvNameFromFlag(flag flag.Service, allowedEnvs []env.EnvLevel) (envLevel env.EnvLevel, isValid bool, err error) {
+	if flag.Env != nil && *flag.Env != "" {
+		envFromFlag := *flag.Env
+		for _, allowedEnv := range allowedEnvs {
+			if allowedEnv.EnvName == envFromFlag {
+				return allowedEnv, true, nil
+			}
+		}
+		return envLevel, false, fmt.Errorf("found environment name [%v] from flag -env but this environment is not allowed", envFromFlag)
+	}
+	return envLevel, false, nil
+}
+
+func (s *Service) GetEnvNameFromMachinevar(machinevar machinevar.Service, key string, allowedEnvs []env.EnvLevel) (envLevel env.EnvLevel, isValid bool, err error) {
+
+	envFromMachine, err := machinevar.GetVar(key)
+	if err == nil {
+		for _, allowedEnv := range allowedEnvs {
+			if allowedEnv.EnvName == envFromMachine {
+				return allowedEnv, true, nil
+			}
+		}
+		return envLevel, false, fmt.Errorf("found environment name [%v] from machine env-var with key [%v] but this environment is not allowed", envFromMachine, key)
+	}
+	return envLevel, false, nil
 }
 
 type Parameters struct {
 	model.In
 	Log        log.Service
 	Flag       flag.Service
+	Machinevar machinevar.Service
 	Preference *env.Preference `optional:"true"`
 }
