@@ -5,19 +5,18 @@ type Service interface {
 	IsDevelopment() (isDevelopment bool)
 	IsStaging() (isStaging bool)
 	IsProduction() (isProduction bool)
+	IsReleaseLevel() (isReleaseLevel bool)
 }
 
 var (
 	DEFAULT_ENV_NAME_ENV_DEVELOPMENT = "development"
 	DEFAULT_ENV_NAME_ENV_STAGING     = "staging"
 	DEFAULT_ENV_NAME_ENV_PRODUCTION  = "production"
-	DEFAULT_ALLOWED_ENV_NAME         = []string{
-		DEFAULT_ENV_NAME_ENV_DEVELOPMENT,
-		DEFAULT_ENV_NAME_ENV_STAGING,
-		DEFAULT_ENV_NAME_ENV_PRODUCTION,
+	DEFAULT_ALLOWED_ENV_NAME         = []EnvLevel{
+		{EnvName: DEFAULT_ENV_NAME_ENV_DEVELOPMENT, IsReleaseLevel: false},
+		{EnvName: DEFAULT_ENV_NAME_ENV_STAGING, IsReleaseLevel: false},
+		{EnvName: DEFAULT_ENV_NAME_ENV_PRODUCTION, IsReleaseLevel: true},
 	}
-
-	DEFAULT_FLAG_NAME_ENV = "env"
 
 	DEFAULT_MACHINE_ENV_NAME = "APP_ENV"
 )
@@ -36,5 +35,17 @@ type Preference struct {
 
 	// currently application only allow development, staging, and production as env name
 	// add your custom env name here
-	AdditionalEnvs []string
+	AdditionalEnvs []EnvLevel
+}
+
+type EnvLevel struct {
+
+	// Environment Name
+	EnvName string
+
+	// Flag to mark environment as Release level
+	// In Example :
+	// This can be used to manage how error message is returned to your user
+	// By Default, any release level environment will return pretty message, while non-release level is allowed to return error message
+	IsReleaseLevel bool
 }
