@@ -22,11 +22,23 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 		}
 		if err != nil {
 
-			isStatusCodeExist, statusCode := errorsg.GetStatusCode(err)
+			isStatusCodeExist, statusCode := errorsg.GetHttpStatusCode(err)
 			if isStatusCodeExist {
 				render.Status(r, statusCode)
 			} else {
-				render.Status(r, 400)
+
+				isErrorTypeExist, errorType := errorsg.GetType(err)
+				if isErrorTypeExist {
+					switch errorType {
+					case errorsg.ErrorTypeBadRequest:
+						render.Status(r, http.StatusBadRequest)
+					case errorsg.ErrorTypeInternalServerError:
+						render.Status(r, http.StatusInternalServerError)
+					}
+				} else {
+					// default unhandled error status
+					render.Status(r, http.StatusInternalServerError)
+				}
 			}
 
 			isPrettyMsgExist, prettyMsg := errorsg.GetPrettyMessage(err)

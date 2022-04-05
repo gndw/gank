@@ -5,10 +5,17 @@ import (
 )
 
 type BuildOptions func(err CustomError) CustomError
+type ErrorType string
+
+var (
+	ErrorTypeBadRequest          ErrorType = "bad_request"
+	ErrorTypeInternalServerError ErrorType = "internal_server_error"
+)
 
 type CustomError struct {
 	Data              string                  `json:"data,omitempty"`
-	StatusCode        *int                    `json:"status_code,omitempty"`
+	Type              *ErrorType              `json:"type,omitempty"`
+	HttpStatusCode    *int                    `json:"http_status_code,omitempty"`
 	Request           *map[string]interface{} `json:"request,omitempty"`
 	PrivateIdentifier *[]string               `json:"private_identifier,omitempty"`
 	PrettyMessage     *string                 `json:"pretty_massage,omitempty"`

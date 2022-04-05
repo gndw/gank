@@ -1,16 +1,32 @@
 package errorsg
 
-func WithStatusCode(statusCode int) BuildOptions {
+func WithType(errorType ErrorType) BuildOptions {
 	return func(err CustomError) CustomError {
-		err.StatusCode = &statusCode
+		err.Type = &errorType
 		return err
 	}
 }
 
-func GetStatusCode(err error) (isExist bool, statusCode int) {
+func GetType(err error) (isExist bool, errorType ErrorType) {
 	customError, ok := err.(*CustomError)
-	if ok && customError.StatusCode != nil {
-		return true, *customError.StatusCode
+	if ok && customError.Type != nil {
+		return true, *customError.Type
+	} else {
+		return false, errorType
+	}
+}
+
+func WithHttpStatusCode(statusCode int) BuildOptions {
+	return func(err CustomError) CustomError {
+		err.HttpStatusCode = &statusCode
+		return err
+	}
+}
+
+func GetHttpStatusCode(err error) (isExist bool, httpStatusCode int) {
+	customError, ok := err.(*CustomError)
+	if ok && customError.HttpStatusCode != nil {
+		return true, *customError.HttpStatusCode
 	} else {
 		return false, 0
 	}
