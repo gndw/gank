@@ -40,8 +40,7 @@ func TestNew(t *testing.T) {
 				args.Log.On("Infof", mock.Anything, mock.Anything)
 			},
 			want: &Service{
-				env:            env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT,
-				isReleaseLevel: false,
+				env: env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT,
 			},
 		},
 		{
@@ -58,8 +57,7 @@ func TestNew(t *testing.T) {
 				args.Log.On("Infof", mock.Anything, mock.Anything)
 			},
 			want: &Service{
-				env:            "my-custom-env",
-				isReleaseLevel: false,
+				env: "my-custom-env",
 			},
 		},
 		{
@@ -75,8 +73,7 @@ func TestNew(t *testing.T) {
 				args.Log.On("Infof", mock.Anything, mock.Anything)
 			},
 			want: &Service{
-				env:            env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT,
-				isReleaseLevel: false,
+				env: env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT,
 			},
 		},
 		{
@@ -93,8 +90,7 @@ func TestNew(t *testing.T) {
 				args.Log.On("Infof", mock.Anything, mock.Anything)
 			},
 			want: &Service{
-				env:            env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT,
-				isReleaseLevel: false,
+				env: env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT,
 			},
 		},
 		{
@@ -111,8 +107,7 @@ func TestNew(t *testing.T) {
 				args.Log.On("Infof", mock.Anything, mock.Anything)
 			},
 			want: &Service{
-				env:            env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT,
-				isReleaseLevel: false,
+				env: env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT,
 			},
 		},
 		{
@@ -123,15 +118,14 @@ func TestNew(t *testing.T) {
 					Env: func() *string { v := "custom-env"; return &v }(),
 				},
 				Machinevar: new(mocksMachinevar.Service),
-				Preference: &env.Preference{AdditionalEnvs: []env.EnvLevel{{EnvName: "custom-env", IsReleaseLevel: true}}},
+				Preference: &env.Preference{AdditionalEnvs: []string{"custom-env"}},
 			},
 			mock: func(args *args) {
 				args.Log.On("Debugf", mock.Anything, mock.Anything, mock.Anything, mock.Anything)
 				args.Log.On("Infof", mock.Anything, mock.Anything)
 			},
 			want: &Service{
-				env:            "custom-env",
-				isReleaseLevel: true,
+				env: "custom-env",
 			},
 		},
 		{
