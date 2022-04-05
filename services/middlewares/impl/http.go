@@ -1,7 +1,6 @@
 package impl
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/gndw/gank/errorsg"
@@ -12,8 +11,7 @@ import (
 func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
-		ctx := context.Background()
-
+		ctx := r.Context()
 		data, err := f(ctx, rw, r)
 
 		response := model.HTTPResponse{}
@@ -49,6 +47,7 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 			response.Error = append(response.Error, err.Error())
 		}
 
+		s.logService.InfoStd(ctx, "incoming-http", nil, err)
 		render.JSON(rw, r, response)
 	}
 }

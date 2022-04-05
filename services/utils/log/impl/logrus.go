@@ -1,8 +1,10 @@
 package impl
 
 import (
+	"context"
 	"strings"
 
+	"github.com/gndw/gank/errorsg"
 	"github.com/sirupsen/logrus"
 )
 
@@ -97,4 +99,23 @@ func (s *Service) Errorf(str string, args ...interface{}) {
 
 func (s *Service) Errorln(args ...interface{}) {
 	logrus.Errorln(args...)
+}
+
+func (s *Service) InfoStd(ctx context.Context, msg string, metadata map[string]interface{}, err error) {
+
+	stdMetadata := make(map[string]interface{})
+	for key, value := range metadata {
+		stdMetadata[key] = value
+	}
+
+	// get metadata from ctx
+	// get metadata from error
+	if err != nil {
+		errMetadata := errorsg.GetMetadata(err)
+		for key, value := range errMetadata {
+			stdMetadata[key] = value
+		}
+	}
+
+	logrus.WithFields(logrus.Fields(stdMetadata)).Infoln(msg)
 }

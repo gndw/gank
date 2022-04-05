@@ -8,6 +8,7 @@ import (
 
 	"github.com/gndw/gank"
 	"github.com/gndw/gank/constant"
+	"github.com/gndw/gank/errorsg"
 	"github.com/gndw/gank/model"
 	"github.com/gndw/gank/services/config"
 	"github.com/gndw/gank/services/http/server"
@@ -72,7 +73,8 @@ func main() {
 					Method:   constant.HTTPMethodGet,
 					Endpoint: "/my-custom-endpoint/bad",
 					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
-						return nil, errors.New("bad request response")
+						// return nil, errors.New("bad request response")
+						return nil, errorsg.BadRequestWithOptions(errors.New("bad request response"), errorsg.WithPrivateIdentifier("pipipi"))
 					},
 				})
 				if err != nil {

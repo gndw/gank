@@ -1,5 +1,14 @@
 package errorsg
 
+func GetData(err error) (data string) {
+	customError, ok := err.(*CustomError)
+	if ok && customError.Type != nil {
+		return customError.Data
+	} else {
+		return err.Error()
+	}
+}
+
 func WithType(errorType ErrorType) BuildOptions {
 	return func(err CustomError) CustomError {
 		err.Type = &errorType
@@ -36,6 +45,15 @@ func WithRequest(request map[string]interface{}) BuildOptions {
 	return func(err CustomError) CustomError {
 		err.Request = &request
 		return err
+	}
+}
+
+func GetRequest(err error) (isExist bool, request map[string]interface{}) {
+	customError, ok := err.(*CustomError)
+	if ok && customError.Request != nil {
+		return true, *customError.Request
+	} else {
+		return false, nil
 	}
 }
 
