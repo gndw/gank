@@ -1,10 +1,8 @@
 package impl
 
 import (
-	"context"
 	"strings"
 
-	"github.com/gndw/gank/errorsg"
 	"github.com/sirupsen/logrus"
 )
 
@@ -101,21 +99,18 @@ func (s *Service) Errorln(args ...interface{}) {
 	logrus.Errorln(args...)
 }
 
-func (s *Service) InfoStd(ctx context.Context, msg string, metadata map[string]interface{}, err error) {
+func (s *Service) LogInfoWithMetadata(metadata map[string]interface{}, msg string) {
+	logrus.WithFields(logrus.Fields(metadata)).Infoln(msg)
+}
 
-	stdMetadata := make(map[string]interface{})
-	for key, value := range metadata {
-		stdMetadata[key] = value
-	}
+func (s *Service) LogWarningWithMetadata(metadata map[string]interface{}, msg string) {
+	logrus.WithFields(logrus.Fields(metadata)).Warningln(msg)
+}
 
-	// get metadata from ctx
-	// get metadata from error
-	if err != nil {
-		errMetadata := errorsg.GetMetadata(err)
-		for key, value := range errMetadata {
-			stdMetadata[key] = value
-		}
-	}
+func (s *Service) LogErrorWithMetadata(metadata map[string]interface{}, msg string) {
+	logrus.WithFields(logrus.Fields(metadata)).Errorln(msg)
+}
 
-	logrus.WithFields(logrus.Fields(stdMetadata)).Infoln(msg)
+func (s *Service) LogPanicWithMetadata(metadata map[string]interface{}, msg string) {
+	logrus.WithFields(logrus.Fields(metadata)).Panicln(msg)
 }

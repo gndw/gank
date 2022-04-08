@@ -12,6 +12,7 @@ type ErrorType string
 var (
 	ErrorTypeBadRequest          ErrorType = "bad_request"
 	ErrorTypeInternalServerError ErrorType = "internal_server_error"
+	ErrorTypePanic               ErrorType = "panic"
 )
 
 type CustomError struct {

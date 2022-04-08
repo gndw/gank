@@ -1,7 +1,5 @@
 package log
 
-import "context"
-
 type Service interface {
 	Print(...interface{})
 	Printf(string, ...interface{})
@@ -11,9 +9,12 @@ type Service interface {
 	Debugln(...interface{})
 	Infof(string, ...interface{})
 	Infoln(...interface{})
-	InfoStd(ctx context.Context, msg string, metadata map[string]interface{}, err error)
 	Warningf(string, ...interface{})
 	Warningln(...interface{})
 	Errorf(string, ...interface{})
 	Errorln(...interface{})
+	LogInfoWithMetadata(metadata map[string]interface{}, msg string)
+	LogWarningWithMetadata(metadata map[string]interface{}, msg string)
+	LogErrorWithMetadata(metadata map[string]interface{}, msg string)
+	LogPanicWithMetadata(metadata map[string]interface{}, msg string)
 }
