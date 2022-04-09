@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"path"
 
@@ -11,7 +12,6 @@ import (
 	"github.com/gndw/gank/model"
 	"github.com/gndw/gank/services/config"
 	"github.com/gndw/gank/services/env"
-	"github.com/gndw/gank/services/utils/log"
 	"github.com/gndw/gank/services/utils/marshal"
 )
 
@@ -41,13 +41,13 @@ func New(params Parameters) (data config.Service, content config.Content, err er
 			if configPath.MustValid {
 				return data, content, err
 			} else {
-				params.Log.Debugf("config.service> failed to load default config file for env[%v]. returning empty config file", params.Env.Get())
+				log.Printf("config.service> failed to load default config file for env[%v]. returning empty config file", params.Env.Get())
 			}
 		} else {
-			params.Log.Debugf("config.service> successfully populate config using file from %v", configPath.Path)
+			log.Printf("config.service> successfully populate config using file from %v", configPath.Path)
 		}
 	} else {
-		params.Log.Debugln("config.service> no config file path. returning empty config file")
+		log.Println("config.service> no config file path. returning empty config file")
 	}
 
 	return data, content, nil
@@ -118,7 +118,6 @@ func GetPathFromArray(pathArray []string) (string, error) {
 type Parameters struct {
 	model.In
 	Env        env.Service
-	Log        log.Service
 	Marshal    marshal.Service
 	Preference *config.Preference `optional:"true"`
 }

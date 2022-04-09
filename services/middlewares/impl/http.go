@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gndw/gank/errorsg"
@@ -17,8 +18,9 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		var (
-			data interface{}
-			err  error
+			data    interface{}
+			err     error
+			isPanic bool
 		)
 
 		ctx := r.Context()
@@ -52,6 +54,7 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 						render.Status(r, http.StatusInternalServerError)
 					case errorsg.ErrorTypePanic:
 						render.Status(r, http.StatusInternalServerError)
+						isPanic = true
 					}
 				} else {
 					// default unhandled error status
@@ -70,7 +73,22 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 			render.Status(r, http.StatusOK)
 		}
 
+		if isPanic {
+			// add custom content-length header if panic
+			responseBytes, _ := json.Marshal(response)
+			rw.Header().Add("Content-Length", strconv.Itoa(len(responseBytes)+1))
+		}
+
+		// write response
 		render.JSON(ww, r, response)
+
+		if isPanic {
+			// flush if panic
+			f, ok := rw.(http.Flusher)
+			if ok {
+				f.Flush()
+			}
+		}
 	}
 }
 

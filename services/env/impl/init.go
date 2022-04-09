@@ -2,11 +2,11 @@ package impl
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gndw/gank/model"
 	"github.com/gndw/gank/services/env"
 	"github.com/gndw/gank/services/flag"
-	"github.com/gndw/gank/services/utils/log"
 	"github.com/gndw/gank/services/utils/machinevar"
 )
 
@@ -19,7 +19,7 @@ func New(params Parameters) (env.Service, error) {
 	ins := &Service{}
 	allowedEnvs := ins.GetAllowedEnv(params.Preference)
 	defer func() {
-		params.Log.Infof("starting application with env: %v", ins.Get())
+		log.Printf("starting application with env: %v", ins.Get())
 	}()
 
 	// get environment from flag
@@ -28,7 +28,7 @@ func New(params Parameters) (env.Service, error) {
 		return nil, err
 	} else if isValidFromFlag {
 		ins.env = env
-		params.Log.Debugf("env.service> found env [%v] from flag -env", env)
+		log.Printf("env.service> found env [%v] from flag -env", env)
 		return ins, nil
 	}
 
@@ -39,13 +39,13 @@ func New(params Parameters) (env.Service, error) {
 		return nil, err
 	} else if isValidFromMachinevar {
 		ins.env = env
-		params.Log.Debugf("env.service> found env [%v] from Machine Environment Variable with key [%v]", env, machineKey)
+		log.Printf("env.service> found env [%v] from Machine Environment Variable with key [%v]", env, machineKey)
 		return ins, nil
 	}
 
 	// use default env
 	ins.env = ins.GetDefaultEnv(params.Preference)
-	params.Log.Debugf("env.service> no env found in flag & machine-var. default env: %v is used", ins.Get())
+	log.Printf("env.service> no env found in flag & machine-var. default env: %v is used", ins.Get())
 	return ins, nil
 }
 
@@ -100,7 +100,6 @@ func (s *Service) GetEnvNameFromMachinevar(machinevar machinevar.Service, key st
 
 type Parameters struct {
 	model.In
-	Log        log.Service
 	Flag       flag.Service
 	Machinevar machinevar.Service
 	Preference *env.Preference `optional:"true"`

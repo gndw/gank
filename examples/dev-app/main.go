@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gndw/gank"
 	"github.com/gndw/gank/constant"
@@ -68,13 +69,51 @@ func main() {
 					return err
 				}
 
+				// adding OK endpoint but slow
+				err = server.AddHttpHandler(model.AddHTTPRequest{
+					Method:   constant.HTTPMethodGet,
+					Endpoint: "/my-custom-endpoint/slow",
+					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
+						time.Sleep(time.Millisecond * 100)
+						return "OK but slow", nil
+					},
+				})
+				if err != nil {
+					return err
+				}
+
 				// adding Bad Request endpoint
 				err = server.AddHttpHandler(model.AddHTTPRequest{
 					Method:   constant.HTTPMethodGet,
 					Endpoint: "/my-custom-endpoint/bad",
 					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
-						// return nil, errors.New("bad request response")
 						return nil, errorsg.BadRequestWithOptions(errors.New("bad request response"), errorsg.WithPrivateIdentifier("pipipi"))
+					},
+				})
+				if err != nil {
+					return err
+				}
+
+				// adding Internal Server Error endpoint
+				err = server.AddHttpHandler(model.AddHTTPRequest{
+					Method:   constant.HTTPMethodGet,
+					Endpoint: "/my-custom-endpoint/error",
+					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
+						return nil, errorsg.BadRequestWithOptions(errors.New("internal error"), errorsg.WithType(errorsg.ErrorTypeInternalServerError))
+					},
+				})
+				if err != nil {
+					return err
+				}
+
+				// adding Panic endpoint
+				err = server.AddHttpHandler(model.AddHTTPRequest{
+					Method:   constant.HTTPMethodGet,
+					Endpoint: "/my-custom-endpoint/panic",
+					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
+						var test interface{}
+						number := test.(int64)
+						return number, nil
 					},
 				})
 				if err != nil {

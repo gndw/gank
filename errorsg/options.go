@@ -25,6 +25,22 @@ func GetType(err error) (isExist bool, errorType ErrorType) {
 	}
 }
 
+func WithStack(stack []byte) BuildOptions {
+	return func(err CustomError) CustomError {
+		err.Stack = &stack
+		return err
+	}
+}
+
+func GetStack(err error) (isExist bool, stack []byte) {
+	customError, ok := err.(*CustomError)
+	if ok && customError.Stack != nil {
+		return true, *customError.Stack
+	} else {
+		return false, stack
+	}
+}
+
 func WithHttpStatusCode(statusCode int) BuildOptions {
 	return func(err CustomError) CustomError {
 		err.HttpStatusCode = &statusCode

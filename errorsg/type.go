@@ -22,6 +22,7 @@ type CustomError struct {
 	Request           *map[string]interface{} `json:"request,omitempty"`
 	PrivateIdentifier *[]string               `json:"private_identifier,omitempty"`
 	PrettyMessage     *string                 `json:"pretty_massage,omitempty"`
+	Stack             *[]byte                 `json:"stack,omitempty"`
 }
 
 func (e *CustomError) Error() string {
@@ -37,6 +38,7 @@ func (e *CustomError) Error() string {
 		// Exclude private value that doesn't need to be printed
 		// PrivateIdentifier: e.PrivateIdentifier,
 		// PrettyMessage: e.PrettyMessage,
+		// Stack: e.Stack,
 	}
 
 	v, err := json.Marshal(ce)
@@ -74,6 +76,10 @@ func GetMetadata(err error) (metadata map[string]interface{}) {
 	exist, pmsg := GetPrettyMessage(err)
 	if exist {
 		metadata["error.pretty_message"] = pmsg
+	}
+	exist, stack := GetStack(err)
+	if exist {
+		metadata["error.stack"] = string(stack)
 	}
 
 	return metadata
