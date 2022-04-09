@@ -133,23 +133,25 @@ func (s *Service) LogHttpRequest(ctx context.Context, wrw middleware.WrapRespons
 		}
 	}
 
+	msg := fmt.Sprintf("HTTP Request | %v %v | code %v | in %v ms", stdMetadata["method"], stdMetadata["endpoint"], stdMetadata["status-code"], stdMetadata["process-time"])
+
 	if err == nil {
-		s.logService.LogInfoWithMetadata(stdMetadata, "http ok")
+		s.logService.LogInfoWithMetadata(stdMetadata, msg)
 	} else {
 		exist, errorType := errorsg.GetType(err)
 		if exist {
 			switch errorType {
 			case errorsg.ErrorTypeBadRequest:
-				s.logService.LogInfoWithMetadata(stdMetadata, "http bad request")
+				s.logService.LogInfoWithMetadata(stdMetadata, msg)
 			case errorsg.ErrorTypeInternalServerError:
-				s.logService.LogErrorWithMetadata(stdMetadata, "http internal server error")
+				s.logService.LogErrorWithMetadata(stdMetadata, msg)
 			case errorsg.ErrorTypePanic:
-				s.logService.LogPanicWithMetadata(stdMetadata, "http panic")
+				s.logService.LogPanicWithMetadata(stdMetadata, msg)
 			default:
-				s.logService.LogWarningWithMetadata(stdMetadata, "http unknown type")
+				s.logService.LogWarningWithMetadata(stdMetadata, msg)
 			}
 		} else {
-			s.logService.LogWarningWithMetadata(stdMetadata, "http without type")
+			s.logService.LogWarningWithMetadata(stdMetadata, msg)
 		}
 	}
 }
