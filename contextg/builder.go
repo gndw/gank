@@ -2,6 +2,7 @@ package contextg
 
 import (
 	"context"
+	"time"
 
 	"github.com/gndw/gank/constant"
 )
@@ -99,4 +100,30 @@ func GetRequestID(ctx context.Context) (isExist bool, requestID string) {
 	}
 
 	return false, ""
+}
+
+func WithIncomingTime(parent context.Context, t time.Time) (ctx context.Context) {
+
+	obj := parent.Value(constant.ContextKeyIncomingTime)
+	if obj != nil {
+		pointer, ok := obj.(*time.Time)
+		if ok {
+			*pointer = t
+		}
+	}
+
+	return parent
+}
+
+func GetIncomingTime(ctx context.Context) (isExist bool, t time.Time) {
+
+	obj := ctx.Value(constant.ContextKeyIncomingTime)
+	if obj != nil {
+		pointer, ok := obj.(*time.Time)
+		if ok && !(*pointer).IsZero() {
+			return true, *pointer
+		}
+	}
+
+	return false, t
 }

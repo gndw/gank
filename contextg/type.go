@@ -3,6 +3,7 @@ package contextg
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/gndw/gank/constant"
 )
@@ -10,9 +11,12 @@ import (
 var ContextKeyTracer constant.ContextKey = "tracer"
 
 func CreateCustomContext(ctx context.Context) context.Context {
+
+	// initialize all value to create a pointer
 	ctx = context.WithValue(ctx, constant.ContextKeyUserID, new(int64))
 	ctx = context.WithValue(ctx, constant.ContextKeyRequestID, new(string))
 	ctx = context.WithValue(ctx, ContextKeyTracer, new(ContextGTracer))
+	ctx = context.WithValue(ctx, constant.ContextKeyIncomingTime, new(time.Time))
 	return ctx
 }
 

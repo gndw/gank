@@ -6,35 +6,21 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/gndw/gank/contextg"
 	"github.com/gndw/gank/errorsg"
 	"github.com/gndw/gank/model"
-	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 )
 
-func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
-	return func(rw http.ResponseWriter, r *http.Request) {
+func (s *Service) GetHttpMiddleware(f model.Middleware) model.Middleware {
+	return func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 
 		var (
-			data      interface{}
-			err       error
 			errorType errorsg.ErrorType
 		)
 
-		// create custom context
-		ctx := contextg.CreateCustomContext(r.Context())
-
-		// if activate log
-		t := time.Now()
-		ww := middleware.NewWrapResponseWriter(rw, r.ProtoMajor)
-		defer func() {
-			s.LogHttpRequest(ctx, ww, r, time.Since(t), data, err)
-		}()
-
-		data, err = f(ctx, ww, r)
+		data, err = f(ctx, rw, r)
 
 		response := model.HTTPResponse{}
 		if data != nil {
@@ -103,7 +89,7 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 		}
 
 		// write response
-		render.JSON(ww, r, response)
+		render.JSON(rw, r, response)
 
 		// if error type is panic, flush after response is written
 		// to force golang-http sending error message back to the client
@@ -113,66 +99,7 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 				f.Flush()
 			}
 		}
-	}
-}
 
-func (s *Service) LogHttpRequest(ctx context.Context, wrw middleware.WrapResponseWriter, r *http.Request, processTime time.Duration, data interface{}, err error) {
-
-	stdMetadata := make(map[string]interface{})
-
-	scheme := "http"
-	if r.TLS != nil {
-		scheme = "https"
-	}
-
-	stdMetadata["method"] = r.Method
-	stdMetadata["endpoint"] = fmt.Sprintf("%s://%s%s %s\" ", scheme, r.Host, r.RequestURI, r.Proto)
-	stdMetadata["remote-address"] = r.RemoteAddr
-
-	stdMetadata["status-code"] = wrw.Status()
-	stdMetadata["bytes-written"] = wrw.BytesWritten()
-
-	returnedHeadersBytes, _ := json.Marshal(wrw.Header())
-	stdMetadata["returned-headers"] = string(returnedHeadersBytes)
-
-	stdMetadata["process-time"] = processTime.Milliseconds()
-
-	responseBytes, _ := json.Marshal(data)
-	stdMetadata["response"] = string(responseBytes)
-
-	// get metadata from ctx
-	ctxMetadata := contextg.GetMetadata(ctx)
-	for key, value := range ctxMetadata {
-		stdMetadata[key] = value
-	}
-
-	// get metadata from error
-	if err != nil {
-		errMetadata := errorsg.GetMetadata(err)
-		for key, value := range errMetadata {
-			stdMetadata[key] = value
-		}
-	}
-
-	msg := fmt.Sprintf("HTTP Request | %v %v | code %v | in %v ms", stdMetadata["method"], stdMetadata["endpoint"], stdMetadata["status-code"], stdMetadata["process-time"])
-
-	if err == nil {
-		s.logService.LogInfoWithMetadata(stdMetadata, msg)
-	} else {
-		exist, errorType := errorsg.GetType(err)
-		if exist {
-			switch errorType {
-			case errorsg.ErrorTypeBadRequest:
-				s.logService.LogInfoWithMetadata(stdMetadata, msg)
-			case errorsg.ErrorTypeInternalServerError:
-				s.logService.LogErrorWithMetadata(stdMetadata, msg)
-			case errorsg.ErrorTypePanic:
-				s.logService.LogPanicWithMetadata(stdMetadata, msg)
-			default:
-				s.logService.LogWarningWithMetadata(stdMetadata, msg)
-			}
-		} else {
-			s.logService.LogWarningWithMetadata(stdMetadata, msg)
-		}
+		return data, err
 	}
 }
