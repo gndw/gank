@@ -7,10 +7,11 @@ import (
 )
 
 type Service interface {
-	GetHttpMiddleware(f model.Middleware) http.HandlerFunc
+	GetInitializeMiddleware(f model.Middleware) http.HandlerFunc
+	GetLoggerMiddleware(f model.Middleware) model.Middleware
+	GetHttpMiddleware(f model.Middleware) model.Middleware
 	GetRecovererMiddleware(f model.Middleware) model.Middleware
 	GetRequestIDMiddleware(f model.Middleware) model.Middleware
-	GetLoggerMiddleware() func(next http.Handler) http.Handler
 	GetAuthMiddleware(isActivateAuth bool, f model.Middleware) model.Middleware
 	IsAuthMiddlewareValid() (isValid bool)
 }
