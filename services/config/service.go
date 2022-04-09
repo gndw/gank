@@ -10,7 +10,9 @@ type Service struct {
 }
 
 type Server struct {
-	Port int `yaml:"port"`
+	Port                          int  `yaml:"port"`
+	IsLoggingInJSON               bool `yaml:"is_logging_in_json"`
+	IsLoggingFieldOnlyWhenVerbose bool `yaml:"is_logging_field_only_when_verbose"`
 }
 
 var (
@@ -41,7 +43,9 @@ var (
 
 	DEFAULT_CONFIG = Service{
 		Server: Server{
-			Port: 9000,
+			Port:                          9000,
+			IsLoggingInJSON:               false,
+			IsLoggingFieldOnlyWhenVerbose: false,
 		},
 	}
 )

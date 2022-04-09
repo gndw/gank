@@ -15,8 +15,10 @@ func (s *Service) AddHttpHandler(req model.AddHTTPRequest) (err error) {
 
 	s.router.MethodFunc(req.Method, req.Endpoint,
 		s.middlewareService.GetHttpMiddleware(
-			s.middlewareService.GetAuthMiddleware(req.IsActivateAuth,
-				req.Handler,
+			s.middlewareService.GetRecovererMiddleware(
+				s.middlewareService.GetAuthMiddleware(req.IsActivateAuth,
+					req.Handler,
+				),
 			),
 		),
 	)

@@ -54,6 +54,26 @@ func (_m *Service) Infoln(_a0 ...interface{}) {
 	_m.Called(_ca...)
 }
 
+// LogErrorWithMetadata provides a mock function with given fields: metadata, msg
+func (_m *Service) LogErrorWithMetadata(metadata map[string]interface{}, msg string) {
+	_m.Called(metadata, msg)
+}
+
+// LogInfoWithMetadata provides a mock function with given fields: metadata, msg
+func (_m *Service) LogInfoWithMetadata(metadata map[string]interface{}, msg string) {
+	_m.Called(metadata, msg)
+}
+
+// LogPanicWithMetadata provides a mock function with given fields: metadata, msg
+func (_m *Service) LogPanicWithMetadata(metadata map[string]interface{}, msg string) {
+	_m.Called(metadata, msg)
+}
+
+// LogWarningWithMetadata provides a mock function with given fields: metadata, msg
+func (_m *Service) LogWarningWithMetadata(metadata map[string]interface{}, msg string) {
+	_m.Called(metadata, msg)
+}
+
 // Print provides a mock function with given fields: _a0
 func (_m *Service) Print(_a0 ...interface{}) {
 	var _ca []interface{}

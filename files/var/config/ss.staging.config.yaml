@@ -1,3 +1,5 @@
 ---
 server:
   port: 9000
+  is_logging_in_json: true
+  is_logging_field_only_when_verbose: false

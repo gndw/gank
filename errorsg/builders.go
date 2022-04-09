@@ -2,7 +2,6 @@ package errorsg
 
 import (
 	"fmt"
-	"net/http"
 )
 
 func WithOptions(err error, options ...BuildOptions) error {
@@ -24,14 +23,14 @@ func WithOptions(err error, options ...BuildOptions) error {
 
 func BadRequestWithOptions(err error, options ...BuildOptions) error {
 	options = append([]BuildOptions{
-		WithStatusCode(http.StatusBadRequest),
+		WithType(ErrorTypeBadRequest),
 	}, options...)
 	return WithOptions(err, options...)
 }
 
 func InternalErrorWithOptions(err error, options ...BuildOptions) error {
 	options = append([]BuildOptions{
-		WithStatusCode(http.StatusInternalServerError),
+		WithType(ErrorTypeInternalServerError),
 	}, options...)
 	return WithOptions(err, options...)
 }

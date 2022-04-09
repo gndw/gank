@@ -98,3 +98,35 @@ func (s *Service) Errorf(str string, args ...interface{}) {
 func (s *Service) Errorln(args ...interface{}) {
 	logrus.Errorln(args...)
 }
+
+func (s *Service) LogInfoWithMetadata(metadata map[string]interface{}, msg string) {
+	if s.isNotLoggingField {
+		logrus.Infoln(msg)
+		return
+	}
+	logrus.WithFields(logrus.Fields(metadata)).Infoln(msg)
+}
+
+func (s *Service) LogWarningWithMetadata(metadata map[string]interface{}, msg string) {
+	if s.isNotLoggingField {
+		logrus.Warningln(msg)
+		return
+	}
+	logrus.WithFields(logrus.Fields(metadata)).Warningln(msg)
+}
+
+func (s *Service) LogErrorWithMetadata(metadata map[string]interface{}, msg string) {
+	if s.isNotLoggingField {
+		logrus.Errorln(msg)
+		return
+	}
+	logrus.WithFields(logrus.Fields(metadata)).Errorln(msg)
+}
+
+func (s *Service) LogPanicWithMetadata(metadata map[string]interface{}, msg string) {
+	if s.isNotLoggingField {
+		logrus.Panicln(msg)
+		return
+	}
+	logrus.WithFields(logrus.Fields(metadata)).Panicln(msg)
+}

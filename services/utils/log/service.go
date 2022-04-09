@@ -13,4 +13,8 @@ type Service interface {
 	Warningln(...interface{})
 	Errorf(string, ...interface{})
 	Errorln(...interface{})
+	LogInfoWithMetadata(metadata map[string]interface{}, msg string)
+	LogWarningWithMetadata(metadata map[string]interface{}, msg string)
+	LogErrorWithMetadata(metadata map[string]interface{}, msg string)
+	LogPanicWithMetadata(metadata map[string]interface{}, msg string)
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
-	"github.com/go-chi/render"
 )
 
 type Service struct {
@@ -26,16 +25,17 @@ func NewGochi(middlewareService middlewares.Service) (router.Service, error) {
 		AllowedOrigins: []string{"https://*", "http://*"},
 		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-Request-ID"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 
-	ins.router.Use(middlewareService.GetLoggerMiddleware())
-	ins.router.Use(middleware.Recoverer)
+	ins.router.Use(middleware.RequestID)
+	// ins.router.Use(middlewareService.GetLoggerMiddleware())
+	// ins.router.Use(middleware.Recoverer)
 	ins.router.Use(middleware.Heartbeat("/ping"))
-	ins.router.Use(render.SetContentType(render.ContentTypeJSON))
+	// ins.router.Use(render.SetContentType(render.ContentTypeJSON))
 
 	return ins, nil
 }

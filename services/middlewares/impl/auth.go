@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/gndw/gank/constant"
+	"github.com/gndw/gank/contextg"
 	"github.com/gndw/gank/errorsg"
 	"github.com/gndw/gank/model"
 )
@@ -17,7 +17,7 @@ func (s *Service) GetAuthMiddleware(isActivateAuth bool, f model.Middleware) mod
 		if isActivateAuth {
 			ctx, err = s.ValidateAuthFromHeader(ctx, r)
 			if err != nil {
-				return nil, errorsg.WithOptions(err, errorsg.WithStatusCode(http.StatusUnauthorized))
+				return nil, errorsg.WithOptions(err, errorsg.WithHttpStatusCode(http.StatusUnauthorized))
 			}
 		}
 		return f(ctx, rw, r)
@@ -51,7 +51,8 @@ func (s *Service) ValidateAuthFromHeader(ctx context.Context, r *http.Request) (
 		}
 
 		// make sure user ID injected to context is int64
-		resultCtx = context.WithValue(ctx, constant.ContextKeyUserID, int64(userID_Float))
+		// resultCtx = context.WithValue(ctx, constant.ContextKeyUserID, int64(userID_Float))
+		resultCtx = contextg.WithUserID(ctx, int64(userID_Float))
 
 		// success
 		return resultCtx, nil

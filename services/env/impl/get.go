@@ -19,7 +19,3 @@ func (s *Service) IsStaging() (isStaging bool) {
 func (s *Service) IsProduction() (isProduction bool) {
 	return s.env == env.DEFAULT_ENV_NAME_ENV_PRODUCTION
 }
-
-func (s *Service) IsReleaseLevel() (isReleaseLevel bool) {
-	return s.isReleaseLevel
-}
