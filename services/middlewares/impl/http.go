@@ -26,7 +26,6 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 
 		// create custom context
 		ctx := contextg.CreateCustomContext(r.Context())
-		// ctx := r.Context()
 
 		// if activate log
 		t := time.Now()
