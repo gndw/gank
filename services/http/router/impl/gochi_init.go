@@ -31,7 +31,7 @@ func NewGochi(middlewareService middlewares.Service) (router.Service, error) {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 
-	ins.router.Use(middleware.RequestID)
+	// ins.router.Use(middleware.RequestID)
 	// ins.router.Use(middlewareService.GetLoggerMiddleware())
 	// ins.router.Use(middleware.Recoverer)
 	ins.router.Use(middleware.Heartbeat("/ping"))
