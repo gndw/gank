@@ -8,3 +8,9 @@ server:
   default_msg_unauthorized: "Sorry your session has timed-out. Please sign in again."
   default_msg_bad_request: "We cannot proceed with your invalid request. Please modify and try again. (%v)"
   default_msg_internal_server_error: "We cannot proceed with your request at the moment. Please try again later. (%v)"
+  allowed_origins: "https://*,http://*"
+  allowed_methods: "GET,POST,PUT,DELETE,OPTIONS"
+  allowed_headers: "Accept,Authorization,Content-Type,X-CSRF-Token,X-Request-ID"
+  exposed_headers: "Link"
+  allow_credentials: false
+  cache_max_age: 300

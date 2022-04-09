@@ -1,6 +1,9 @@
 package impl
 
 import (
+	"strings"
+
+	"github.com/gndw/gank/services/config"
 	"github.com/gndw/gank/services/http/router"
 	"github.com/gndw/gank/services/middlewares"
 	"github.com/go-chi/chi/v5"
@@ -13,7 +16,7 @@ type Service struct {
 	middlewareService middlewares.Service
 }
 
-func NewGochi(middlewareService middlewares.Service) (router.Service, error) {
+func NewGochi(middlewareService middlewares.Service, config config.Service) (router.Service, error) {
 
 	ins := &Service{
 		router:            chi.NewRouter(),
@@ -21,21 +24,15 @@ func NewGochi(middlewareService middlewares.Service) (router.Service, error) {
 	}
 
 	ins.router.Use(cors.Handler(cors.Options{
-		// AllowedOrigins:   []string{"https://foo.com"}, // Use this to allow specific origin hosts
-		AllowedOrigins: []string{"https://*", "http://*"},
-		// AllowOriginFunc:  func(r *http.Request, origin string) bool { return true },
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token", "X-Request-ID"},
-		ExposedHeaders:   []string{"Link"},
-		AllowCredentials: false,
-		MaxAge:           300, // Maximum value not ignored by any of major browsers
+		AllowedOrigins:   strings.Split(config.Server.AllowedOrigins, ","),
+		AllowedMethods:   strings.Split(config.Server.AllowedMethods, ","),
+		AllowedHeaders:   strings.Split(config.Server.AllowedHeaders, ","),
+		ExposedHeaders:   strings.Split(config.Server.ExposedHeaders, ","),
+		AllowCredentials: config.Server.AllowCredentials,
+		MaxAge:           config.Server.CacheMaxAge,
 	}))
 
-	// ins.router.Use(middleware.RequestID)
-	// ins.router.Use(middlewareService.GetLoggerMiddleware())
-	// ins.router.Use(middleware.Recoverer)
 	ins.router.Use(middleware.Heartbeat("/ping"))
-	// ins.router.Use(render.SetContentType(render.ContentTypeJSON))
 
 	return ins, nil
 }

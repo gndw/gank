@@ -18,6 +18,13 @@ type Server struct {
 	DefaultMsgUnauthorized        string `yaml:"default_msg_unauthorized"`
 	DefaultMsgBadRequest          string `yaml:"default_msg_bad_request"`
 	DefaultMsgInternalServerError string `yaml:"default_msg_internal_server_error"`
+
+	AllowedOrigins   string `yaml:"allowed_origins"`
+	AllowedMethods   string `yaml:"allowed_methods"`
+	AllowedHeaders   string `yaml:"allowed_headers"`
+	ExposedHeaders   string `yaml:"exposed_headers"`
+	AllowCredentials bool   `yaml:"allow_credentials"`
+	CacheMaxAge      int    `yaml:"cache_max_age"`
 }
 
 var (
@@ -56,6 +63,12 @@ var (
 			DefaultMsgUnauthorized:        "Sorry your session has timed-out. Please sign in again.",
 			DefaultMsgBadRequest:          "We cannot proceed with your invalid request. Please modify and try again. (%v)",
 			DefaultMsgInternalServerError: "We cannot proceed with your request at the moment. Please try again later. (%v)",
+			AllowedOrigins:                "https://*,http://*",
+			AllowedMethods:                "GET,POST,PUT,DELETE,OPTIONS",
+			AllowedHeaders:                "Accept,Authorization,Content-Type,X-CSRF-Token,X-Request-ID",
+			ExposedHeaders:                "Link",
+			AllowCredentials:              false,
+			CacheMaxAge:                   300,
 		},
 	}
 )
