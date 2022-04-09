@@ -7,7 +7,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type Service struct{}
+type Service struct {
+	isVerbose         bool
+	isNotLoggingField bool
+}
 
 func NewLogrus(flag flag.Service, config config.Service) (log.Service, error) {
 	ins := &Service{}
@@ -22,8 +25,13 @@ func NewLogrus(flag flag.Service, config config.Service) (log.Service, error) {
 	}
 
 	if flag.Verbose != nil && *flag.Verbose {
+		ins.isVerbose = true
 		logrus.SetLevel(logrus.TraceLevel)
 		ins.Debugln("log.service> verbose flag is active")
+	}
+
+	if config.Server.IsLoggingFieldOnlyWhenVerbose && !ins.isVerbose {
+		ins.isNotLoggingField = true
 	}
 
 	return ins, nil
