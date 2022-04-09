@@ -10,9 +10,14 @@ type Service struct {
 }
 
 type Server struct {
-	Port                          int  `yaml:"port"`
-	IsLoggingInJSON               bool `yaml:"is_logging_in_json"`
-	IsLoggingFieldOnlyWhenVerbose bool `yaml:"is_logging_field_only_when_verbose"`
+	Port                          int    `yaml:"port"`
+	IsLoggingInJSON               bool   `yaml:"is_logging_in_json"`
+	IsLoggingFieldOnlyWhenVerbose bool   `yaml:"is_logging_field_only_when_verbose"`
+	IsReturnDeveloperError        bool   `yaml:"is_return_developer_error"`
+	DefaultMsgMaintenance         string `yaml:"default_msg_maintenance"`
+	DefaultMsgUnauthorized        string `yaml:"default_msg_unauthorized"`
+	DefaultMsgBadRequest          string `yaml:"default_msg_bad_request"`
+	DefaultMsgInternalServerError string `yaml:"default_msg_internal_server_error"`
 }
 
 var (
@@ -46,6 +51,11 @@ var (
 			Port:                          9000,
 			IsLoggingInJSON:               false,
 			IsLoggingFieldOnlyWhenVerbose: false,
+			IsReturnDeveloperError:        true,
+			DefaultMsgMaintenance:         "We are currently performing a scheduled maintenance. We will be back soon.",
+			DefaultMsgUnauthorized:        "Sorry your session has timed-out. Please sign in again.",
+			DefaultMsgBadRequest:          "We cannot proceed with your invalid request. Please modify and try again. (%v)",
+			DefaultMsgInternalServerError: "We cannot proceed with your request at the moment. Please try again later. (%v)",
 		},
 	}
 )
