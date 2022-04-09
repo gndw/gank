@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/gndw/gank/contextg"
 	"github.com/gndw/gank/errorsg"
 	"github.com/gndw/gank/model"
 	"github.com/go-chi/chi/v5/middleware"
@@ -23,7 +24,9 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 			isPanic bool
 		)
 
-		ctx := r.Context()
+		// create custom context
+		ctx := contextg.CreateCustomContext(r.Context())
+		// ctx := r.Context()
 
 		// if activate log
 		t := time.Now()
@@ -117,6 +120,11 @@ func (s *Service) LogHttpRequest(ctx context.Context, wrw middleware.WrapRespons
 	stdMetadata["response"] = string(responseBytes)
 
 	// get metadata from ctx
+	ctxMetadata := contextg.GetMetadata(ctx)
+	for key, value := range ctxMetadata {
+		stdMetadata[key] = value
+	}
+
 	// get metadata from error
 	if err != nil {
 		errMetadata := errorsg.GetMetadata(err)

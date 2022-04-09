@@ -3,5 +3,6 @@ package constant
 type ContextKey string
 
 var (
-	ContextKeyUserID ContextKey = "user_id"
+	ContextKeyUserID    ContextKey = "user_id"
+	ContextKeyRequestID ContextKey = "request_id"
 )

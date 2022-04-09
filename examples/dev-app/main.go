@@ -9,6 +9,7 @@ import (
 
 	"github.com/gndw/gank"
 	"github.com/gndw/gank/constant"
+	"github.com/gndw/gank/contextg"
 	"github.com/gndw/gank/errorsg"
 	"github.com/gndw/gank/model"
 	"github.com/gndw/gank/services/config"
@@ -114,6 +115,31 @@ func main() {
 						var test interface{}
 						number := test.(int64)
 						return number, nil
+					},
+				})
+				if err != nil {
+					return err
+				}
+
+				// adding endpoint with tracer
+				err = server.AddHttpHandler(model.AddHTTPRequest{
+					Method:   constant.HTTPMethodGet,
+					Endpoint: "/my-custom-endpoint/tracer",
+					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
+
+						ctx, tracer := contextg.WithTracer(ctx, contextg.FromFunction(main))
+						defer tracer.Finish()
+						time.Sleep(time.Millisecond * 100)
+
+						ctx, tracer2 := contextg.WithTracer(ctx, "testing2")
+						time.Sleep(time.Millisecond * 100)
+						tracer2.Finish()
+
+						time.Sleep(time.Millisecond * 50)
+
+						contextg.WithUserID(ctx, 69)
+
+						return "OK", nil
 					},
 				})
 				if err != nil {
