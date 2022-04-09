@@ -17,7 +17,10 @@ func (s *Service) GetAuthMiddleware(isActivateAuth bool, f model.Middleware) mod
 		if isActivateAuth {
 			ctx, err = s.ValidateAuthFromHeader(ctx, r)
 			if err != nil {
-				return nil, errorsg.WithOptions(err, errorsg.WithHttpStatusCode(http.StatusUnauthorized), errorsg.WithPrettyMessage(s.configService.Server.DefaultMsgUnauthorized))
+				return nil, errorsg.WithOptions(err,
+					errorsg.WithHttpStatusCode(http.StatusUnauthorized),
+					errorsg.WithType(errorsg.ErrorTypeBadRequest),
+					errorsg.WithPrettyMessage(s.configService.Server.DefaultMsgUnauthorized))
 			}
 		}
 		return f(ctx, rw, r)

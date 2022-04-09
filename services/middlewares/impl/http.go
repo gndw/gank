@@ -19,11 +19,9 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		var (
-			data                  interface{}
-			err                   error
-			isPanic               bool
-			isBadRequest          bool
-			isInternalServerError bool
+			data      interface{}
+			err       error
+			errorType errorsg.ErrorType
 		)
 
 		// create custom context
@@ -44,55 +42,62 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 		}
 		if err != nil {
 
+			// calculate error type
+			_, errorType = errorsg.GetType(err)
+
+			// calculate http error code
 			isStatusCodeExist, statusCode := errorsg.GetHttpStatusCode(err)
 			if isStatusCodeExist {
 				render.Status(r, statusCode)
 			} else {
-
-				isErrorTypeExist, errorType := errorsg.GetType(err)
-				if isErrorTypeExist {
-					switch errorType {
-					case errorsg.ErrorTypeBadRequest:
-						render.Status(r, http.StatusBadRequest)
-						isBadRequest = true
-					case errorsg.ErrorTypeInternalServerError:
-						render.Status(r, http.StatusInternalServerError)
-						isInternalServerError = true
-					case errorsg.ErrorTypePanic:
-						render.Status(r, http.StatusInternalServerError)
-						isPanic = true
-					}
-				} else {
-					// default unhandled error status
+				// if no explicit http code provided, set error code based on error type
+				switch errorType {
+				case errorsg.ErrorTypeBadRequest:
+					render.Status(r, http.StatusBadRequest)
+				case errorsg.ErrorTypeInternalServerError:
+					render.Status(r, http.StatusInternalServerError)
+				case errorsg.ErrorTypePanic:
+					render.Status(r, http.StatusInternalServerError)
+				default:
 					render.Status(r, http.StatusInternalServerError)
 				}
 			}
 
+			// calculate error message
 			isPrettyMsgExist, prettyMsg := errorsg.GetPrettyMessage(err)
 			if isPrettyMsgExist {
 				response.Error = append(response.Error, prettyMsg)
 			} else {
-
-				// adding default pretty message
+				// if no explicit error message provided, set error message based on error type
+				// also add request_id for better tracking in log engine
 				_, reqID := contextg.GetRequestID(ctx)
-				if isBadRequest {
+				switch errorType {
+				case errorsg.ErrorTypeBadRequest:
 					response.Error = append(response.Error, fmt.Sprintf(s.configService.Server.DefaultMsgBadRequest, reqID))
-				} else if isInternalServerError {
+				case errorsg.ErrorTypeInternalServerError:
+					response.Error = append(response.Error, fmt.Sprintf(s.configService.Server.DefaultMsgInternalServerError, reqID))
+				case errorsg.ErrorTypePanic:
+					response.Error = append(response.Error, fmt.Sprintf(s.configService.Server.DefaultMsgInternalServerError, reqID))
+				default:
 					response.Error = append(response.Error, fmt.Sprintf(s.configService.Server.DefaultMsgInternalServerError, reqID))
 				}
-
 			}
 
+			// adding secondary error message as actual error for developer
 			if s.configService.Server.IsReturnDeveloperError {
 				response.Error = append(response.Error, err.Error())
 			}
 
 		} else {
+
+			// set status ok if no error provided
 			render.Status(r, http.StatusOK)
+
 		}
 
-		if isPanic {
-			// add custom content-length header if panic
+		// if error type is panic, set content-length to actual response length
+		// to force golang-http sending error message back to the client
+		if errorType == errorsg.ErrorTypePanic {
 			responseBytes, _ := json.Marshal(response)
 			rw.Header().Add("Content-Length", strconv.Itoa(len(responseBytes)+1))
 		}
@@ -100,8 +105,9 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 		// write response
 		render.JSON(ww, r, response)
 
-		if isPanic {
-			// flush if panic
+		// if error type is panic, flush after response is written
+		// to force golang-http sending error message back to the client
+		if errorType == errorsg.ErrorTypePanic {
 			f, ok := rw.(http.Flusher)
 			if ok {
 				f.Flush()
