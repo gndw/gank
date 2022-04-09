@@ -3,3 +3,8 @@ server:
   port: 9000
   is_logging_in_json: true
   is_logging_field_only_when_verbose: false
+  is_return_developer_error: true
+  default_msg_maintenance: "We are currently performing a scheduled maintenance. We will be back soon."
+  default_msg_unauthorized: "Sorry your session has timed-out. Please sign in again."
+  default_msg_bad_request: "We cannot proceed with your invalid request. Please modify and try again. (%v)"
+  default_msg_internal_server_error: "We cannot proceed with your request at the moment. Please try again later. (%v)"

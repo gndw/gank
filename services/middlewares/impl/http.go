@@ -19,9 +19,11 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		var (
-			data    interface{}
-			err     error
-			isPanic bool
+			data                  interface{}
+			err                   error
+			isPanic               bool
+			isBadRequest          bool
+			isInternalServerError bool
 		)
 
 		// create custom context
@@ -52,8 +54,10 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 					switch errorType {
 					case errorsg.ErrorTypeBadRequest:
 						render.Status(r, http.StatusBadRequest)
+						isBadRequest = true
 					case errorsg.ErrorTypeInternalServerError:
 						render.Status(r, http.StatusInternalServerError)
+						isInternalServerError = true
 					case errorsg.ErrorTypePanic:
 						render.Status(r, http.StatusInternalServerError)
 						isPanic = true
@@ -67,9 +71,21 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) http.HandlerFunc {
 			isPrettyMsgExist, prettyMsg := errorsg.GetPrettyMessage(err)
 			if isPrettyMsgExist {
 				response.Error = append(response.Error, prettyMsg)
+			} else {
+
+				// adding default pretty message
+				_, reqID := contextg.GetRequestID(ctx)
+				if isBadRequest {
+					response.Error = append(response.Error, fmt.Sprintf(s.configService.Server.DefaultMsgBadRequest, reqID))
+				} else if isInternalServerError {
+					response.Error = append(response.Error, fmt.Sprintf(s.configService.Server.DefaultMsgInternalServerError, reqID))
+				}
+
 			}
 
-			response.Error = append(response.Error, err.Error())
+			if s.configService.Server.IsReturnDeveloperError {
+				response.Error = append(response.Error, err.Error())
+			}
 
 		} else {
 			render.Status(r, http.StatusOK)
