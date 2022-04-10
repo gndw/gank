@@ -146,7 +146,7 @@ func main() {
 						ctx, tracer2 := contextg.WithTracer(ctx, "testing2")
 						time.Sleep(time.Millisecond * 100)
 
-						ctx, tracer3 := contextg.WithTracer(ctx, "testing3")
+						ctx, tracer3 := contextg.WithTracer(ctx, contextg.FromFunction(errorsg.WithOptions))
 						time.Sleep(time.Millisecond * 100)
 
 						tracer3.Finish()
