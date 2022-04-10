@@ -25,6 +25,7 @@ type Server struct {
 	ExposedHeaders   string `yaml:"exposed_headers"`
 	AllowCredentials bool   `yaml:"allow_credentials"`
 	CacheMaxAge      int    `yaml:"cache_max_age"`
+	SensitiveFields  string `yaml:"sensitive_fields"`
 }
 
 var (
@@ -69,6 +70,7 @@ var (
 			ExposedHeaders:                "Link",
 			AllowCredentials:              false,
 			CacheMaxAge:                   300,
+			SensitiveFields:               "password",
 		},
 	}
 )
