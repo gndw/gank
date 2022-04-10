@@ -34,6 +34,8 @@ func (s *Service) LogHttpRequest(ctx context.Context, wrw middleware.WrapRespons
 
 	stdMetadata := make(map[string]interface{})
 
+	stdMetadata["env"] = s.envService.Get()
+
 	scheme := "http"
 	if r.TLS != nil {
 		scheme = "https"
