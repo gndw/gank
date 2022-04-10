@@ -145,10 +145,14 @@ func main() {
 
 						ctx, tracer2 := contextg.WithTracer(ctx, "testing2")
 						time.Sleep(time.Millisecond * 100)
-						tracer2.Finish()
 
+						ctx, tracer3 := contextg.WithTracer(ctx, "testing3")
+						time.Sleep(time.Millisecond * 100)
+
+						tracer3.Finish()
 						time.Sleep(time.Millisecond * 50)
-
+						tracer2.Finish()
+						time.Sleep(time.Millisecond * 50)
 						contextg.WithUserID(ctx, 69)
 
 						return "OK", nil

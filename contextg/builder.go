@@ -13,17 +13,24 @@ func WithTracer(parent context.Context, functionName string) (ctx context.Contex
 	newTracer.Start(functionName)
 
 	existingTracerInterface := parent.Value(ContextKeyTracer)
-	if existingTracerInterface != nil {
+	for existingTracerInterface != nil {
 		existingTracer, ok := existingTracerInterface.(*ContextGTracer)
 		if ok {
 			if existingTracer != nil && existingTracer.FunctionName != "" {
-				existingTracer.Child = &newTracer
-				return parent, &newTracer
+				if existingTracer.Child != nil {
+					existingTracerInterface = existingTracer.Child
+				} else {
+					existingTracer.Child = &newTracer
+					return parent, &newTracer
+				}
 			} else {
 				*existingTracer = newTracer
 				return parent, existingTracer
 			}
+		} else {
+			break
 		}
+
 	}
 
 	return parent, nil
