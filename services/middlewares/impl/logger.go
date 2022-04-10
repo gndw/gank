@@ -4,7 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gndw/gank/contextg"
@@ -56,6 +58,8 @@ func (s *Service) LogHttpRequest(ctx context.Context, wrw middleware.WrapRespons
 	responseBytes, _ := json.Marshal(data)
 	stdMetadata["response"] = string(responseBytes)
 
+	stdMetadata["request-body"] = s.GetSanitizedHTTPRequestBody(r)
+
 	// get metadata from ctx
 	ctxMetadata := contextg.GetMetadata(ctx)
 	for key, value := range ctxMetadata {
@@ -91,4 +95,49 @@ func (s *Service) LogHttpRequest(ctx context.Context, wrw middleware.WrapRespons
 			s.logService.LogWarningWithMetadata(stdMetadata, msg)
 		}
 	}
+}
+
+func (s *Service) GetSanitizedHTTPRequestBody(r *http.Request) (result string) {
+
+	var f interface{}
+
+	b, _ := io.ReadAll(r.Body)
+	defer r.Body.Close()
+	json.Unmarshal(b, &f)
+
+	v, ok := f.(map[string]interface{})
+	if ok {
+
+		sfields := strings.Split(s.configService.Server.SensitiveFields, ",")
+		for _, sfield := range sfields {
+
+			layers := strings.Split(sfield, ".")
+			temp := &v
+
+			for i, layer := range layers {
+
+				if i == len(layers)-1 {
+					_, exist := (*temp)[layer]
+					if exist {
+						(*temp)[layer] = "-MASKED-"
+					}
+				} else {
+					_, exist := (*temp)[layer]
+					if exist {
+						temp2, okk := (*temp)[layer].(map[string]interface{})
+						if okk {
+							temp = &temp2
+						} else {
+							break
+						}
+					} else {
+						break
+					}
+				}
+			}
+		}
+	}
+
+	rb, _ := json.Marshal(v)
+	return string(rb)
 }

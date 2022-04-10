@@ -83,6 +83,18 @@ func main() {
 					return err
 				}
 
+				// adding OK endpoint
+				err = server.AddHttpHandler(model.AddHTTPRequest{
+					Method:   constant.HTTPMethodPOST,
+					Endpoint: "/my-custom-endpoint/ok",
+					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
+						return "OK but POST", nil
+					},
+				})
+				if err != nil {
+					return err
+				}
+
 				// adding Bad Request endpoint
 				err = server.AddHttpHandler(model.AddHTTPRequest{
 					Method:   constant.HTTPMethodGet,
