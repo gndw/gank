@@ -17,6 +17,7 @@ func CreateCustomContext(ctx context.Context) context.Context {
 	ctx = context.WithValue(ctx, constant.ContextKeyRequestID, new(string))
 	ctx = context.WithValue(ctx, ContextKeyTracer, new(ContextGTracer))
 	ctx = context.WithValue(ctx, constant.ContextKeyIncomingTime, new(time.Time))
+	ctx = context.WithValue(ctx, constant.ContextKeyRequestBody, new([]byte))
 	return ctx
 }
 

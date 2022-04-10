@@ -134,3 +134,29 @@ func GetIncomingTime(ctx context.Context) (isExist bool, t time.Time) {
 
 	return false, t
 }
+
+func WithRequestBody(parent context.Context, body []byte) (ctx context.Context) {
+
+	obj := parent.Value(constant.ContextKeyRequestBody)
+	if obj != nil {
+		pointer, ok := obj.(*[]byte)
+		if ok {
+			*pointer = body
+		}
+	}
+
+	return parent
+}
+
+func GetRequestBody(ctx context.Context) (isExist bool, body []byte) {
+
+	obj := ctx.Value(constant.ContextKeyRequestBody)
+	if obj != nil {
+		pointer, ok := obj.(*[]byte)
+		if ok && len(*pointer) > 0 {
+			return true, *pointer
+		}
+	}
+
+	return false, nil
+}

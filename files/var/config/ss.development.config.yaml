@@ -14,4 +14,4 @@ server:
   exposed_headers: "Link"
   allow_credentials: false
   cache_max_age: 300
-  sensitive_fields: "password"
+  sensitive_fields: "password,token"
