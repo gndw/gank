@@ -15,8 +15,8 @@ func (s *Service) GetRequestIDMiddleware(f model.Middleware) model.Middleware {
 		requestID := r.Header.Get("X-Request-ID")
 		if requestID == "" {
 			requestID = uuid.NewString()
-			ctx = contextg.WithRequestID(ctx, requestID)
 		}
+		ctx = contextg.WithRequestID(ctx, requestID)
 
 		return f(ctx, rw, r)
 	}

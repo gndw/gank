@@ -3,6 +3,7 @@ package contextg
 import (
 	"reflect"
 	"runtime"
+	"strings"
 	"time"
 )
 
@@ -23,5 +24,12 @@ func (t *ContextGTracer) Finish() {
 }
 
 func FromFunction(i interface{}) string {
-	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
+	fn := runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
+	splits := strings.Split(fn, "/")
+	if len(splits) > 0 {
+		if splits[0] == "github.com" && len(splits) > 3 {
+			return strings.Join(splits[3:], "/")
+		}
+	}
+	return fn
 }

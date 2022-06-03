@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"log"
 	"net/http"
@@ -88,7 +89,28 @@ func main() {
 					Method:   constant.HTTPMethodPOST,
 					Endpoint: "/my-custom-endpoint/ok",
 					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
-						return "OK but POST", nil
+
+						type TestRequest struct {
+							Username string `json:"username"`
+							Password string `json:"password"`
+						}
+
+						type TestResponse struct {
+							UserID int64  `json:"user_id"`
+							Token  string `json:"token"`
+						}
+
+						var req TestRequest
+
+						exist, rb := contextg.GetRequestBody(ctx)
+						if exist {
+							err = json.Unmarshal(rb, &req)
+							if err != nil {
+								return data, err
+							}
+						}
+
+						return TestResponse{UserID: 69, Token: "private-token"}, nil
 					},
 				})
 				if err != nil {
@@ -145,10 +167,14 @@ func main() {
 
 						ctx, tracer2 := contextg.WithTracer(ctx, "testing2")
 						time.Sleep(time.Millisecond * 100)
-						tracer2.Finish()
 
+						ctx, tracer3 := contextg.WithTracer(ctx, contextg.FromFunction(errorsg.WithOptions))
+						time.Sleep(time.Millisecond * 100)
+
+						tracer3.Finish()
 						time.Sleep(time.Millisecond * 50)
-
+						tracer2.Finish()
+						time.Sleep(time.Millisecond * 50)
 						contextg.WithUserID(ctx, 69)
 
 						return "OK", nil

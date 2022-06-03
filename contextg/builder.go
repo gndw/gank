@@ -13,17 +13,24 @@ func WithTracer(parent context.Context, functionName string) (ctx context.Contex
 	newTracer.Start(functionName)
 
 	existingTracerInterface := parent.Value(ContextKeyTracer)
-	if existingTracerInterface != nil {
+	for existingTracerInterface != nil {
 		existingTracer, ok := existingTracerInterface.(*ContextGTracer)
 		if ok {
 			if existingTracer != nil && existingTracer.FunctionName != "" {
-				existingTracer.Child = &newTracer
-				return parent, &newTracer
+				if existingTracer.Child != nil {
+					existingTracerInterface = existingTracer.Child
+				} else {
+					existingTracer.Child = &newTracer
+					return parent, &newTracer
+				}
 			} else {
 				*existingTracer = newTracer
 				return parent, existingTracer
 			}
+		} else {
+			break
 		}
+
 	}
 
 	return parent, nil
@@ -126,4 +133,30 @@ func GetIncomingTime(ctx context.Context) (isExist bool, t time.Time) {
 	}
 
 	return false, t
+}
+
+func WithRequestBody(parent context.Context, body []byte) (ctx context.Context) {
+
+	obj := parent.Value(constant.ContextKeyRequestBody)
+	if obj != nil {
+		pointer, ok := obj.(*[]byte)
+		if ok {
+			*pointer = body
+		}
+	}
+
+	return parent
+}
+
+func GetRequestBody(ctx context.Context) (isExist bool, body []byte) {
+
+	obj := ctx.Value(constant.ContextKeyRequestBody)
+	if obj != nil {
+		pointer, ok := obj.(*[]byte)
+		if ok && len(*pointer) > 0 {
+			return true, *pointer
+		}
+	}
+
+	return false, nil
 }

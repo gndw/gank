@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -35,6 +34,8 @@ func (s *Service) LogHttpRequest(ctx context.Context, wrw middleware.WrapRespons
 
 	stdMetadata := make(map[string]interface{})
 
+	stdMetadata["env"] = s.envService.Get()
+
 	scheme := "http"
 	if r.TLS != nil {
 		scheme = "https"
@@ -56,9 +57,12 @@ func (s *Service) LogHttpRequest(ctx context.Context, wrw middleware.WrapRespons
 	}
 
 	responseBytes, _ := json.Marshal(data)
-	stdMetadata["response"] = string(responseBytes)
+	stdMetadata["response"] = string(s.SanitizeSensitiveDataFromBytes(responseBytes))
 
-	stdMetadata["request-body"] = s.GetSanitizedHTTPRequestBody(r)
+	exist, rb := contextg.GetRequestBody(ctx)
+	if exist {
+		stdMetadata["request-body"] = string(s.SanitizeSensitiveDataFromBytes(rb))
+	}
 
 	// get metadata from ctx
 	ctxMetadata := contextg.GetMetadata(ctx)
@@ -97,13 +101,10 @@ func (s *Service) LogHttpRequest(ctx context.Context, wrw middleware.WrapRespons
 	}
 }
 
-func (s *Service) GetSanitizedHTTPRequestBody(r *http.Request) (result string) {
+func (s *Service) SanitizeSensitiveDataFromBytes(from []byte) (to []byte) {
 
 	var f interface{}
-
-	b, _ := io.ReadAll(r.Body)
-	defer r.Body.Close()
-	json.Unmarshal(b, &f)
+	json.Unmarshal(from, &f)
 
 	v, ok := f.(map[string]interface{})
 	if ok {
@@ -139,5 +140,5 @@ func (s *Service) GetSanitizedHTTPRequestBody(r *http.Request) (result string) {
 	}
 
 	rb, _ := json.Marshal(v)
-	return string(rb)
+	return rb
 }

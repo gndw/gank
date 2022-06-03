@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strconv"
 
@@ -20,8 +21,17 @@ func (s *Service) GetHttpMiddleware(f model.Middleware) model.Middleware {
 			errorType errorsg.ErrorType
 		)
 
+		// catch request body
+		b, e := io.ReadAll(r.Body)
+		if e == nil {
+			ctx = contextg.WithRequestBody(ctx, b)
+		}
+		r.Body.Close()
+
+		// execute next
 		data, err = f(ctx, rw, r)
 
+		// calculate response
 		response := model.HTTPResponse{}
 		if data != nil {
 			response.Data = data
