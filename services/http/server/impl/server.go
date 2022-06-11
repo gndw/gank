@@ -17,7 +17,3 @@ func (s *Service) AddHttpHandlers(requests ...model.AddHTTPRequest) (err error) 
 	}
 	return nil
 }
-
-func (s *Service) IsAuthRouterValid() (isValid bool) {
-	return s.router.IsAuthRouterValid()
-}

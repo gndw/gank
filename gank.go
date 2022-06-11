@@ -43,15 +43,16 @@ import (
 )
 
 var (
-	ConfigKey      reflect.Type = reflect.TypeOf(func(config.Service) {}).In(0)
-	EnvKey         reflect.Type = reflect.TypeOf(func(env.Service) {}).In(0)
-	ServerKey      reflect.Type = reflect.TypeOf(func(server.Service) {}).In(0)
-	MiddlewaresKey reflect.Type = reflect.TypeOf(func(middlewares.Service) {}).In(0)
-	SecretKey      reflect.Type = reflect.TypeOf(func(secret.Service) {}).In(0)
-	FlagKey        reflect.Type = reflect.TypeOf(func(flag.Service) {}).In(0)
-	MarshalKey     reflect.Type = reflect.TypeOf(func(marshal.Service) {}).In(0)
-	MachinevarKey  reflect.Type = reflect.TypeOf(func(machinevar.Service) {}).In(0)
-	IoKey          reflect.Type = reflect.TypeOf(func(io.Service) {}).In(0)
+	ConfigKey         reflect.Type = reflect.TypeOf(func(config.Service) {}).In(0)
+	EnvKey            reflect.Type = reflect.TypeOf(func(env.Service) {}).In(0)
+	ServerKey         reflect.Type = reflect.TypeOf(func(server.Service) {}).In(0)
+	MiddlewaresKey    reflect.Type = reflect.TypeOf(func(middlewares.Service) {}).In(0)
+	MiddlewareAuthKey reflect.Type = reflect.TypeOf(func(middlewares.Auth) {}).In(0)
+	SecretKey         reflect.Type = reflect.TypeOf(func(secret.Service) {}).In(0)
+	FlagKey           reflect.Type = reflect.TypeOf(func(flag.Service) {}).In(0)
+	MarshalKey        reflect.Type = reflect.TypeOf(func(marshal.Service) {}).In(0)
+	MachinevarKey     reflect.Type = reflect.TypeOf(func(machinevar.Service) {}).In(0)
+	IoKey             reflect.Type = reflect.TypeOf(func(io.Service) {}).In(0)
 
 	DbKey     reflect.Type = reflect.TypeOf(func(db.Service) {}).In(0)
 	RouterKey reflect.Type = reflect.TypeOf(func(router.Service) {}).In(0)
@@ -132,15 +133,16 @@ func WithInvokers(invokers ...interface{}) (opt model.BuilderOption) {
 
 func GetDefaultInternalProviders() (providers map[reflect.Type]interface{}) {
 	return map[reflect.Type]interface{}{
-		ConfigKey:      configService.New,
-		EnvKey:         envService.New,
-		ServerKey:      serverService.New,
-		MiddlewaresKey: middlewareService.New,
-		SecretKey:      secretService.New,
-		FlagKey:        flagService.New,
-		MarshalKey:     marshalService.New,
-		MachinevarKey:  machinevarService.New,
-		IoKey:          ioService.New,
+		ConfigKey:         configService.New,
+		EnvKey:            envService.New,
+		ServerKey:         serverService.New,
+		MiddlewaresKey:    middlewareService.New,
+		MiddlewareAuthKey: middlewareService.NewAuth,
+		SecretKey:         secretService.New,
+		FlagKey:           flagService.New,
+		MarshalKey:        marshalService.New,
+		MachinevarKey:     machinevarService.New,
+		IoKey:             ioService.New,
 
 		RouterKey: routerService.NewGochi,
 		HashKey:   hashService.NewBcript,

@@ -32,7 +32,7 @@ func main() {
 
 					// adding OK endpoint
 					model.AddHTTPRequest{
-						Method:   constant.HTTPMethodGet,
+						Method:   constant.HTTPMethodGET,
 						Endpoint: "/my-custom-endpoint/ok",
 						Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 							return "OK", nil
@@ -41,7 +41,7 @@ func main() {
 
 					// adding Bad Request endpoint
 					model.AddHTTPRequest{
-						Method:   constant.HTTPMethodGet,
+						Method:   constant.HTTPMethodGET,
 						Endpoint: "/my-custom-endpoint/bad",
 						Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 							return nil, errors.New("bad request response")

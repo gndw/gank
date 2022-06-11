@@ -1,6 +1,10 @@
 package constant
 
+type HTTPMethod string
+
 var (
-	HTTPMethodGet  = "GET"
-	HTTPMethodPOST = "POST"
+	HTTPMethodGET    HTTPMethod = "GET"
+	HTTPMethodPOST   HTTPMethod = "POST"
+	HTTPMethodPUT    HTTPMethod = "PUT"
+	HTTPMethodDELETE HTTPMethod = "DELETE"
 )

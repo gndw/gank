@@ -15,20 +15,14 @@ import (
 
 type Service struct {
 	logService    log.Service
-	tokenService  token.Service
 	configService config.Service
 	envService    env.Service
 }
 
 func New(log log.Service, token token.Service, config config.Service, env env.Service) (middlewares.Service, error) {
 
-	if !token.IsValid() {
-		log.Debugf("middleware.service> middleware service is receiving invalid token service")
-	}
-
 	ins := &Service{
 		logService:    log,
-		tokenService:  token,
 		configService: config,
 		envService:    env,
 	}
