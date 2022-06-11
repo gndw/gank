@@ -3,15 +3,17 @@ package model
 import (
 	"context"
 	"net/http"
+
+	"github.com/gndw/gank/constant"
 )
 
 type Middleware func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (interface{}, error)
 
 type AddHTTPRequest struct {
-	Method         string
-	Endpoint       string
-	IsActivateAuth bool
-	Handler        Middleware
+	Method      constant.HTTPMethod
+	Endpoint    string
+	Middlewares []func(m Middleware) Middleware
+	Handler     Middleware
 }
 
 type HTTPResponse struct {

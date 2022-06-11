@@ -22,7 +22,7 @@ func New(server server.Service, usecase uHealth.Usecase) (result health.Handler,
 
 	err = server.AddHttpHandler(
 		model.AddHTTPRequest{
-			Method:   commonConstant.HTTPMethodGet,
+			Method:   commonConstant.HTTPMethodGET,
 			Endpoint: internalConstant.HTTPEndpointHealth,
 			Handler:  h.Get,
 		},
@@ -31,19 +31,18 @@ func New(server server.Service, usecase uHealth.Usecase) (result health.Handler,
 		return h, err
 	}
 
-	if server.IsAuthRouterValid() {
-		err = server.AddHttpHandler(
-			model.AddHTTPRequest{
-				Method:         commonConstant.HTTPMethodGet,
-				Endpoint:       internalConstant.HTTPEndpointExampleProtectedContent,
-				IsActivateAuth: true,
-				Handler:        h.GetProtectedExample,
-			},
-		)
-		if err != nil {
-			return h, err
-		}
+	// if server.IsAuthRouterValid() {
+	err = server.AddHttpHandler(
+		model.AddHTTPRequest{
+			Method:   commonConstant.HTTPMethodGET,
+			Endpoint: internalConstant.HTTPEndpointExampleProtectedContent,
+			Handler:  h.GetProtectedExample,
+		},
+	)
+	if err != nil {
+		return h, err
 	}
+	// }
 
 	return h, err
 }

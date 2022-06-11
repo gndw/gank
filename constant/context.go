@@ -7,4 +7,5 @@ var (
 	ContextKeyRequestID    ContextKey = "request_id"
 	ContextKeyIncomingTime ContextKey = "incoming_time"
 	ContextKeyRequestBody  ContextKey = "request_body"
+	ContextKeyCustomData   ContextKey = "custom_data"
 )

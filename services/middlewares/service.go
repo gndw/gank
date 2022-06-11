@@ -12,6 +12,10 @@ type Service interface {
 	GetHttpMiddleware(f model.Middleware) model.Middleware
 	GetRecovererMiddleware(f model.Middleware) model.Middleware
 	GetRequestIDMiddleware(f model.Middleware) model.Middleware
-	GetAuthMiddleware(isActivateAuth bool, f model.Middleware) model.Middleware
-	IsAuthMiddlewareValid() (isValid bool)
+	GetDefault() []func(m model.Middleware) model.Middleware
+	GetDefaultWith(middlewares ...func(m model.Middleware) model.Middleware) []func(m model.Middleware) model.Middleware
+}
+
+type Auth interface {
+	GetAuthMiddleware(f model.Middleware) model.Middleware
 }

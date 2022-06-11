@@ -160,3 +160,32 @@ func GetRequestBody(ctx context.Context) (isExist bool, body []byte) {
 
 	return false, nil
 }
+
+func WithCustomData(parent context.Context, key string, value interface{}) (ctx context.Context) {
+
+	obj := parent.Value(constant.ContextKeyCustomData)
+	if obj != nil {
+		pointer, ok := obj.(*map[string]interface{})
+		if ok {
+			if (*pointer) == nil {
+				(*pointer) = make(map[string]interface{})
+			}
+			(*pointer)[key] = value
+		}
+	}
+
+	return parent
+}
+
+func GetCustomData(ctx context.Context) (isExist bool, data map[string]interface{}) {
+
+	obj := ctx.Value(constant.ContextKeyCustomData)
+	if obj != nil {
+		pointer, ok := obj.(*map[string]interface{})
+		if ok && *pointer != nil {
+			return true, *pointer
+		}
+	}
+
+	return false, nil
+}

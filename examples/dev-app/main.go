@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -15,6 +16,7 @@ import (
 	"github.com/gndw/gank/model"
 	"github.com/gndw/gank/services/config"
 	"github.com/gndw/gank/services/http/server"
+	"github.com/gndw/gank/services/middlewares"
 	"github.com/gndw/gank/services/secret"
 )
 
@@ -57,11 +59,11 @@ func main() {
 
 		// add new http endpoint
 		gank.WithInvokers(
-			func(server server.Service) (err error) {
+			func(server server.Service, middlewares middlewares.Service) (err error) {
 
 				// adding OK endpoint
 				err = server.AddHttpHandler(model.AddHTTPRequest{
-					Method:   constant.HTTPMethodGet,
+					Method:   constant.HTTPMethodGET,
 					Endpoint: "/my-custom-endpoint/ok",
 					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 						return "OK", nil
@@ -73,7 +75,7 @@ func main() {
 
 				// adding OK endpoint but slow
 				err = server.AddHttpHandler(model.AddHTTPRequest{
-					Method:   constant.HTTPMethodGet,
+					Method:   constant.HTTPMethodGET,
 					Endpoint: "/my-custom-endpoint/slow",
 					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 						time.Sleep(time.Millisecond * 100)
@@ -119,7 +121,7 @@ func main() {
 
 				// adding Bad Request endpoint
 				err = server.AddHttpHandler(model.AddHTTPRequest{
-					Method:   constant.HTTPMethodGet,
+					Method:   constant.HTTPMethodGET,
 					Endpoint: "/my-custom-endpoint/bad",
 					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 						return nil, errorsg.BadRequestWithOptions(errors.New("bad request response"), errorsg.WithPrivateIdentifier("pipipi"))
@@ -131,7 +133,7 @@ func main() {
 
 				// adding Internal Server Error endpoint
 				err = server.AddHttpHandler(model.AddHTTPRequest{
-					Method:   constant.HTTPMethodGet,
+					Method:   constant.HTTPMethodGET,
 					Endpoint: "/my-custom-endpoint/error",
 					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 						return nil, errorsg.BadRequestWithOptions(errors.New("internal error"), errorsg.WithType(errorsg.ErrorTypeInternalServerError))
@@ -143,7 +145,7 @@ func main() {
 
 				// adding Panic endpoint
 				err = server.AddHttpHandler(model.AddHTTPRequest{
-					Method:   constant.HTTPMethodGet,
+					Method:   constant.HTTPMethodGET,
 					Endpoint: "/my-custom-endpoint/panic",
 					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 						var test interface{}
@@ -157,7 +159,7 @@ func main() {
 
 				// adding endpoint with tracer
 				err = server.AddHttpHandler(model.AddHTTPRequest{
-					Method:   constant.HTTPMethodGet,
+					Method:   constant.HTTPMethodGET,
 					Endpoint: "/my-custom-endpoint/tracer",
 					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 
@@ -177,6 +179,32 @@ func main() {
 						time.Sleep(time.Millisecond * 50)
 						contextg.WithUserID(ctx, 69)
 
+						return "OK", nil
+					},
+				})
+				if err != nil {
+					return err
+				}
+
+				// adding OK endpoint with custom middlewares
+				err = server.AddHttpHandler(model.AddHTTPRequest{
+					Method:   constant.HTTPMethodGET,
+					Endpoint: "/my-custom-endpoint/mid-ok",
+					Middlewares: middlewares.GetDefaultWith(
+						func(m model.Middleware) model.Middleware {
+							return func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (interface{}, error) {
+								fmt.Println("hello 1")
+								return m(ctx, rw, r)
+							}
+						},
+						func(m model.Middleware) model.Middleware {
+							return func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (interface{}, error) {
+								fmt.Println("hello 2")
+								return m(ctx, rw, r)
+							}
+						},
+					),
+					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 						return "OK", nil
 					},
 				})

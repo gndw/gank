@@ -1,7 +1,6 @@
 package impl
 
 import (
-	"errors"
 	"net/http"
 
 	"github.com/gndw/gank/model"
@@ -9,32 +8,27 @@ import (
 
 func (s *Service) AddHttpHandler(req model.AddHTTPRequest) (err error) {
 
-	if req.IsActivateAuth && !s.middlewareService.IsAuthMiddlewareValid() {
-		return errors.New("cannot add router with activate auth when auth middleware is invalid")
+	// get default
+	if len(req.Middlewares) == 0 {
+		req.Middlewares = s.middlewareService.GetDefault()
 	}
 
-	s.router.MethodFunc(req.Method, req.Endpoint,
+	// setup middlewares
+	handler := req.Handler
+	for i := len(req.Middlewares) - 1; i >= 0; i-- {
+		handler = req.Middlewares[i](handler)
+	}
+
+	// adding to router
+	s.router.MethodFunc(string(req.Method), req.Endpoint,
 		s.middlewareService.GetInitializeMiddleware(
-			s.middlewareService.GetLoggerMiddleware(
-				s.middlewareService.GetRequestIDMiddleware(
-					s.middlewareService.GetHttpMiddleware(
-						s.middlewareService.GetRecovererMiddleware(
-							s.middlewareService.GetAuthMiddleware(req.IsActivateAuth,
-								req.Handler,
-							),
-						),
-					),
-				),
-			),
+			handler,
 		),
 	)
+
 	return nil
 }
 
 func (s *Service) GetHandler() (handler http.Handler, err error) {
 	return s.router, nil
-}
-
-func (s *Service) IsAuthRouterValid() (isValid bool) {
-	return s.middlewareService.IsAuthMiddlewareValid()
 }

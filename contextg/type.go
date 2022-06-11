@@ -2,6 +2,7 @@ package contextg
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -18,6 +19,7 @@ func CreateCustomContext(ctx context.Context) context.Context {
 	ctx = context.WithValue(ctx, ContextKeyTracer, new(ContextGTracer))
 	ctx = context.WithValue(ctx, constant.ContextKeyIncomingTime, new(time.Time))
 	ctx = context.WithValue(ctx, constant.ContextKeyRequestBody, new([]byte))
+	ctx = context.WithValue(ctx, constant.ContextKeyCustomData, new(map[string]interface{}))
 	return ctx
 }
 
@@ -38,6 +40,13 @@ func GetMetadata(ctx context.Context) (metadata map[string]interface{}) {
 	exist, requestID := GetRequestID(ctx)
 	if exist {
 		metadata["ctx.request_id"] = requestID
+	}
+
+	exist, customData := GetCustomData(ctx)
+	if exist {
+		for k, v := range customData {
+			metadata[fmt.Sprintf("ctx.custom.%v.", k)] = v
+		}
 	}
 
 	return metadata
