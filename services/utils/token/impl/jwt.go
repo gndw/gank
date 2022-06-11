@@ -42,11 +42,7 @@ func (s *Service) Parse(token string) (claims map[string]interface{}, err error)
 
 }
 
-func (s *Service) Generate(userID int64, expiresAt time.Time, issuer string, claims map[string]interface{}) (token string, err error) {
-
-	if userID <= 0 {
-		return "", errors.New("user id in token generation cannot be <= 0")
-	}
+func (s *Service) Generate(expiresAt time.Time, issuer string, claims map[string]interface{}) (token string, err error) {
 
 	if expiresAt.IsZero() {
 		return "", errors.New("token expires cannot be zero")
@@ -69,7 +65,6 @@ func (s *Service) Generate(userID int64, expiresAt time.Time, issuer string, cla
 	// 	Subject   string `json:"sub,omitempty"`
 	// }
 
-	claims["user_id"] = userID
 	claims["exp"] = expiresAt.Unix()
 	claims["iat"] = time.Now().Unix()
 	claims["iss"] = issuer
