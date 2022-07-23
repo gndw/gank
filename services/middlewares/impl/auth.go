@@ -20,8 +20,6 @@ type Auth struct {
 	configService config.Service
 }
 
-var DEFAULT_CLAIM_KEY_USER_ID = "user_id"
-
 func NewAuth(token token.Service, config config.Service) (middlewares.Auth, error) {
 	auth := &Auth{
 		tokenService:  token,
@@ -52,12 +50,12 @@ func (s *Auth) validateAuthFromHeader(ctx context.Context, r *http.Request) (res
 
 	if isExist && isBearer {
 
-		mapOfClaimByKeys, err := s.ParseToken(token, []string{DEFAULT_CLAIM_KEY_USER_ID}, AuthParseTokenConfig{CheckClaimPolicy: MUST_VALID_KEYS})
+		mapOfClaimByKeys, err := s.ParseToken(token, []string{middlewares.DEFAULT_CLAIM_KEY_USER_ID}, middlewares.AuthParseTokenConfig{CheckClaimPolicy: middlewares.MUST_VALID_KEYS})
 		if err != nil {
 			return ctx, err
 		}
 
-		userIDClaim, exist := mapOfClaimByKeys[DEFAULT_CLAIM_KEY_USER_ID]
+		userIDClaim, exist := mapOfClaimByKeys[middlewares.DEFAULT_CLAIM_KEY_USER_ID]
 		if exist {
 
 			userID, err := s.ConvertClaimToInt64(userIDClaim)
@@ -88,16 +86,7 @@ func (s *Auth) IsBearerAuthentication(headerStr string) (isBearer bool, token st
 	return strings.HasPrefix(headerStr, "Bearer "), strings.TrimPrefix(headerStr, "Bearer ")
 }
 
-type AuthParseTokenConfig struct {
-	CheckClaimPolicy AuthCheckClaimPolicy
-}
-
-type AuthCheckClaimPolicy string
-
-var IGNORE_MISSING_KEYS AuthCheckClaimPolicy = "ignore_missing_keys"
-var MUST_VALID_KEYS AuthCheckClaimPolicy = "must_valid_keys"
-
-func (s *Auth) ParseToken(token string, keys []string, config AuthParseTokenConfig) (mapOfClaimByKeys map[string]interface{}, err error) {
+func (s *Auth) ParseToken(token string, keys []string, config middlewares.AuthParseTokenConfig) (mapOfClaimByKeys map[string]interface{}, err error) {
 
 	// parse token
 	claims, err := s.tokenService.Parse(token)
@@ -107,7 +96,7 @@ func (s *Auth) ParseToken(token string, keys []string, config AuthParseTokenConf
 
 	// default config
 	if config.CheckClaimPolicy == "" {
-		config.CheckClaimPolicy = IGNORE_MISSING_KEYS
+		config.CheckClaimPolicy = middlewares.IGNORE_MISSING_KEYS
 	}
 
 	// create map for result
@@ -120,9 +109,9 @@ func (s *Auth) ParseToken(token string, keys []string, config AuthParseTokenConf
 			mapOfClaimByKeys[key] = value
 		} else {
 			switch config.CheckClaimPolicy {
-			case MUST_VALID_KEYS:
+			case middlewares.MUST_VALID_KEYS:
 				return mapOfClaimByKeys, fmt.Errorf("token has no %v claims", key)
-			case IGNORE_MISSING_KEYS:
+			case middlewares.IGNORE_MISSING_KEYS:
 				// do nothing
 			default:
 				// do nothing
