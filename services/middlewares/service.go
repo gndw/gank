@@ -21,6 +21,7 @@ type Auth interface {
 	GetAuthorizationHeader(r *http.Request) (isExist bool, headerStr string)
 	IsBearerAuthentication(headerStr string) (isBearer bool, token string)
 	ParseToken(token string, keys []string, config AuthParseTokenConfig) (mapOfClaimByKeys map[string]interface{}, err error)
+	ConvertClaimToInt64(claim interface{}) (value int64, err error)
 }
 
 type AuthParseTokenConfig struct {
