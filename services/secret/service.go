@@ -43,8 +43,8 @@ var (
 	}
 
 	DEFAULT_FILE_PATH = map[string][]string{
-		env.DEFAULT_ENV_NAME_ENV_STAGING:    append([]string{"/app"}, GetDefaultStagingSecretFileRelativeToRepo()...),
-		env.DEFAULT_ENV_NAME_ENV_PRODUCTION: append([]string{"/app"}, GetDefaultProductionSecretFileRelativeToRepo()...),
+		env.DEFAULT_ENV_NAME_ENV_STAGING:    GetDefaultStagingSecretFileRelativeToRepo(),
+		env.DEFAULT_ENV_NAME_ENV_PRODUCTION: GetDefaultProductionSecretFileRelativeToRepo(),
 	}
 
 	DEFAULT_MACHINE_VAR = map[string]string{
@@ -60,7 +60,7 @@ var (
 type Preference struct {
 	// currently application has default file path for default env. check DEFAULT_FILE_PATH
 	// add your custom file path based on env here
-	// example EnvFilePaths["my-custom-env"] = []string{ "/app","files","my-custom-secret-file.json" }
+	// example EnvFilePaths["my-custom-env"] = []string{ "files","var","my-custom-secret-file.json" }
 	EnvFilePaths map[string][]string
 
 	// currently application will check machine environment variable if file is not found as a file.

@@ -50,8 +50,8 @@ var (
 
 	DEFAULT_FILE_PATH = map[string][]string{
 		env.DEFAULT_ENV_NAME_ENV_DEVELOPMENT: functions.CombineStringArray(GetDefaultGolangPath(), []string{"github.com", "gndw", "gank"}, GetDefaultDevelopmentConfigFileRelativeToRepo()),
-		env.DEFAULT_ENV_NAME_ENV_STAGING:     append([]string{"/app"}, GetDefaultStagingConfigFileRelativeToRepo()...),
-		env.DEFAULT_ENV_NAME_ENV_PRODUCTION:  append([]string{"/app"}, GetDefaultProductionConfigFileRelativeToRepo()...),
+		env.DEFAULT_ENV_NAME_ENV_STAGING:     GetDefaultStagingConfigFileRelativeToRepo(),
+		env.DEFAULT_ENV_NAME_ENV_PRODUCTION:  GetDefaultProductionConfigFileRelativeToRepo(),
 	}
 
 	DEFAULT_CONFIG = Service{
@@ -78,7 +78,7 @@ var (
 type Preference struct {
 	// currently application has default file path for default env. check DEFAULT_FILE_PATH
 	// add your custom file path based on env here
-	// example EnvFilePaths["my-custom-env"] = []string{ "/app","files","my-custom-config-file.yaml" }
+	// example EnvFilePaths["my-custom-env"] = []string{ "files","var","my-custom-config-file.yaml" }
 	EnvFilePaths map[string][]string
 }
 
