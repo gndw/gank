@@ -168,7 +168,8 @@ func PopulateDataFromMachineEnvironmentVariable(marshal marshal.Service, machine
 	if str == "" {
 		return content, fmt.Errorf("machine env key value [%v] not found", machineEnvKey)
 	}
-	err = marshal.JsonUnmarshal([]byte(str), target)
+	content = []byte(str)
+	err = marshal.JsonUnmarshal(content, target)
 	if err != nil {
 		return content, fmt.Errorf("failed to unmarshal secret value %v with err: %v", machineEnvKey, err)
 	}
