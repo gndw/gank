@@ -8,15 +8,21 @@ import (
 
 func (s *Service) AddHttpHandler(req model.AddHTTPRequest) (err error) {
 
+	// validation
+	if err := req.Validate(); err != nil {
+		return err
+	}
+	middlewares := req.GetMiddlewares()
+
 	// get default
-	if len(req.Middlewares) == 0 {
-		req.Middlewares = s.middlewareService.GetDefault()
+	if len(middlewares) == 0 {
+		middlewares = s.middlewareService.GetDefault()
 	}
 
 	// setup middlewares
 	handler := req.Handler
-	for i := len(req.Middlewares) - 1; i >= 0; i-- {
-		handler = req.Middlewares[i](handler)
+	for i := len(middlewares) - 1; i >= 0; i-- {
+		handler = middlewares[i](handler, req.MiddlewaresWithConfig.Config...)
 	}
 
 	// adding to router

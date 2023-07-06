@@ -29,7 +29,7 @@ func New(log log.Service, token token.Service, config config.Service, env env.Se
 	return ins, nil
 }
 
-func (s *Service) GetInitializeMiddleware(f model.Middleware) http.HandlerFunc {
+func (s *Service) GetInitializeMiddleware(f model.Middleware, options ...model.MiddlewareOption) http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		// initialize context

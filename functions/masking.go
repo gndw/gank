@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func MaskingDataFromBytes(from []byte, maskingString string) (to []byte) {
+func MaskingDataFromBytes(from []byte, sensitivePathFields []string) (to []byte) {
 
 	var f interface{}
 	json.Unmarshal(from, &f)
@@ -13,10 +13,9 @@ func MaskingDataFromBytes(from []byte, maskingString string) (to []byte) {
 	v, ok := f.(map[string]interface{})
 	if ok {
 
-		sfields := strings.Split(maskingString, ",")
-		for _, sfield := range sfields {
+		for _, field := range sensitivePathFields {
 
-			layers := strings.Split(sfield, ".")
+			layers := strings.Split(field, ".")
 			temp := &v
 
 			for i, layer := range layers {

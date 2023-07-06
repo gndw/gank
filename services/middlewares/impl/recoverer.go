@@ -16,7 +16,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func (s *Service) GetRecovererMiddleware(f model.Middleware) model.Middleware {
+func (s *Service) GetRecovererMiddleware(f model.Middleware, options ...model.MiddlewareOption) model.Middleware {
 	return func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 
 		defer func() {

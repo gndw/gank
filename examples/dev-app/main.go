@@ -191,13 +191,13 @@ func main() {
 					Method:   constant.HTTPMethodGET,
 					Endpoint: "/my-custom-endpoint/mid-ok",
 					Middlewares: middlewares.GetDefaultWith(
-						func(m model.Middleware) model.Middleware {
+						func(m model.Middleware, options ...model.MiddlewareOption) model.Middleware {
 							return func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (interface{}, error) {
 								fmt.Println("hello 1")
 								return m(ctx, rw, r)
 							}
 						},
-						func(m model.Middleware) model.Middleware {
+						func(m model.Middleware, options ...model.MiddlewareOption) model.Middleware {
 							return func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (interface{}, error) {
 								fmt.Println("hello 2")
 								return m(ctx, rw, r)
@@ -206,6 +206,32 @@ func main() {
 					),
 					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 						return "OK", nil
+					},
+				})
+				if err != nil {
+					return err
+				}
+
+				// adding OK endpoint with custom middlewares with config
+				err = server.AddHttpHandler(model.AddHTTPRequest{
+					Method:   constant.HTTPMethodGET,
+					Endpoint: "/my-custom-endpoint/mid-ok-config",
+					MiddlewaresWithConfig: model.MiddlewaresWithConfig{
+						// default middleware will enable logging
+						Middlewares: middlewares.GetDefault(),
+						// create custom config middleware to masking logging sensitive fields in response
+						Config: []model.MiddlewareOption{
+							middlewares.WithLoggerMiddlewareOption_AdditionalSensitiveFields(
+								[]string{"sensitive_message"},
+							),
+						},
+					},
+					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
+						type Response struct {
+							Message          string `json:"message"`
+							SensitiveMessage string `json:"sensitive_message"`
+						}
+						return Response{Message: "msg", SensitiveMessage: "s-msg"}, nil
 					},
 				})
 				if err != nil {

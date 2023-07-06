@@ -28,7 +28,7 @@ func NewAuth(token token.Service, config config.Service) (middlewares.Auth, erro
 	return auth, nil
 }
 
-func (s *Auth) GetAuthMiddleware(f model.Middleware) model.Middleware {
+func (s *Auth) GetAuthMiddleware(f model.Middleware, options ...model.MiddlewareOption) model.Middleware {
 	return func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 
 		ctx, err = s.validateAuthFromHeader(ctx, r)
