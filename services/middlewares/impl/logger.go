@@ -57,8 +57,8 @@ func (s *Service) LogHttpRequest(ctx context.Context, wrw middleware.WrapRespons
 	stdMetadata["returned-headers"] = s.getReturnedHeaders(wrw)
 
 	// request body and response
-	stdMetadata["request-body"] = s.getRequestBody(ctx)
-	stdMetadata["response"] = s.getResponse(data)
+	stdMetadata["request-body"] = s.getRequestBody(ctx, options...)
+	stdMetadata["response"] = s.getResponse(data, options...)
 
 	// get metadata from ctx
 	ctxMetadata := contextg.GetMetadata(ctx)
@@ -140,5 +140,6 @@ func (s *Service) getSensitiveFields(options ...model.MiddlewareOption) []string
 			}
 		}
 	}
+	fmt.Println("sf", sensitiveFields)
 	return sensitiveFields
 }

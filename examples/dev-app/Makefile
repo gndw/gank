@@ -5,3 +5,7 @@ build-app:
 run-app: build-app
 	@echo "Running App..."
 	@../../bin/main
+
+run-app-verbose: build-app
+	@echo "Running App in Verbose Mode..."
+	@../../bin/main -v
