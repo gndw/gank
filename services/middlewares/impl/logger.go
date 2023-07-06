@@ -140,6 +140,5 @@ func (s *Service) getSensitiveFields(options ...model.MiddlewareOption) []string
 			}
 		}
 	}
-	fmt.Println("sf", sensitiveFields)
 	return sensitiveFields
 }
