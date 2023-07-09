@@ -1,6 +1,6 @@
 package constant
 
-var (
+const (
 	HTTPEndpointHealth                  = "/health"
 	HTTPEndpointExampleProtectedContent = "/example/protected"
 )

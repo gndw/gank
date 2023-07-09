@@ -2,7 +2,7 @@ package constant
 
 type HTTPMethod string
 
-var (
+const (
 	HTTPMethodGET    HTTPMethod = "GET"
 	HTTPMethodPOST   HTTPMethod = "POST"
 	HTTPMethodPUT    HTTPMethod = "PUT"

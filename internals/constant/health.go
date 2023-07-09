@@ -1,5 +1,5 @@
 package constant
 
-var (
+const (
 	HealthOKResponse = "OK"
 )
