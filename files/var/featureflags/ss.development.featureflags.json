@@ -1,10 +1,18 @@
 [
     {
-        "key": "Example",
-        "value": "1,2"
+        "key": "example",
+        "value": "text1"
     },
     {
-        "key": "Example2",
-        "value": "all"
+        "key": "example-bool",
+        "value": "true"
+    },
+    {
+        "key": "example-int64",
+        "value": "123"
+    },
+    {
+        "key": "example-array-int64",
+        "value": "456,789"
     }
 ]
