@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 
@@ -40,8 +41,14 @@ func main() {
 					Endpoint: "/ff",
 					Handler: func(ctx context.Context, rw http.ResponseWriter, r *http.Request) (data interface{}, err error) {
 
+						values := []string{}
+						values = append(values, featureFlag.GetKeyWithDefault("example", "default"))
+						values = append(values, fmt.Sprint(featureFlag.GetBooleanWithDefault("example-bool", false)))
+						values = append(values, fmt.Sprint(featureFlag.GetInt64WithDefault("example-int64", 0)))
+						values = append(values, fmt.Sprint(featureFlag.GetArrayOfInt64WithDefault("example-array-int64", []int64{0})))
+
 						// reading feature flag
-						return featureFlag.GetKey("Example")
+						return values, nil
 					},
 				})
 				if err != nil {
