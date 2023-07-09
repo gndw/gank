@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os"
-	"path"
 
 	"github.com/gndw/gank/functions"
 	"github.com/gndw/gank/model"
@@ -57,7 +55,7 @@ func PopulateDataFromPreference(currentEnv string, pref *config.Preference) (dat
 
 	for envName, filePathFolders := range config.DEFAULT_FILE_PATH {
 		if envName == currentEnv {
-			path, _ := GetPathFromArray(filePathFolders)
+			path, _ := functions.GetPathFromArray(filePathFolders)
 			if data.eligibleEnvBasedFilePaths == nil {
 				data.eligibleEnvBasedFilePaths = make(map[string]ConfigPath)
 			}
@@ -71,7 +69,7 @@ func PopulateDataFromPreference(currentEnv string, pref *config.Preference) (dat
 				if !functions.IsAllNonEmpty(filePathFolders...) {
 					return data, fmt.Errorf("config file path for env [%v] cannot be empty : %v", envName, filePathFolders)
 				}
-				path, err := GetPathFromArray(filePathFolders)
+				path, err := functions.GetPathFromArray(filePathFolders)
 				if err != nil {
 					return data, err
 				}
@@ -95,24 +93,6 @@ func PopulateDataFromConfigFilePath(marshal marshal.Service, path string, target
 		return configByte, fmt.Errorf("failed to unmarshal config file %v with err: %v", path, err)
 	}
 	return configByte, nil
-}
-
-func GetPathFromArray(pathArray []string) (string, error) {
-
-	sanitizedArray := []string{}
-	for _, pa := range pathArray {
-		if pa == "GOPATH" {
-			gopath := os.Getenv("GOPATH")
-			if gopath == "" {
-				return "", fmt.Errorf("GOPATH environment is empty")
-			} else {
-				sanitizedArray = append(sanitizedArray, gopath)
-			}
-		} else {
-			sanitizedArray = append(sanitizedArray, pa)
-		}
-	}
-	return path.Join(sanitizedArray...), nil
 }
 
 type Parameters struct {

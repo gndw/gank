@@ -15,3 +15,6 @@ server:
   allow_credentials: false
   cache_max_age: 300
   sensitive_fields: "password,token"
+feature_flags:
+  remote_feature_flags_json_url: GOPATH/src/github.com/gndw/gank/files/var/featureflags/ss.development.featureflags.json
+  watch_time_in_seconds: 5

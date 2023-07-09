@@ -6,7 +6,8 @@ import (
 )
 
 type Service struct {
-	Server Server `yaml:"server"`
+	Server       Server       `yaml:"server"`
+	FeatureFlags FeatureFlags `yaml:"feature_flags"`
 }
 
 type Server struct {
@@ -26,6 +27,11 @@ type Server struct {
 	AllowCredentials bool   `yaml:"allow_credentials"`
 	CacheMaxAge      int    `yaml:"cache_max_age"`
 	SensitiveFields  string `yaml:"sensitive_fields"`
+}
+
+type FeatureFlags struct {
+	RemoteFeatureFlagsJsonURL string `yaml:"remote_feature_flags_json_url"`
+	WatchTimeInSeconds        int64  `yaml:"watch_time_in_seconds"`
 }
 
 var (
@@ -72,6 +78,7 @@ var (
 			CacheMaxAge:                   300,
 			SensitiveFields:               "password",
 		},
+		FeatureFlags: FeatureFlags{},
 	}
 )
 

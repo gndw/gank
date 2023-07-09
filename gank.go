@@ -7,6 +7,7 @@ import (
 	"github.com/gndw/gank/services/config"
 	"github.com/gndw/gank/services/db"
 	"github.com/gndw/gank/services/env"
+	"github.com/gndw/gank/services/featureflags"
 	"github.com/gndw/gank/services/flag"
 	"github.com/gndw/gank/services/http/router"
 	"github.com/gndw/gank/services/http/server"
@@ -25,6 +26,7 @@ import (
 	configService "github.com/gndw/gank/services/config/impl"
 	dbService "github.com/gndw/gank/services/db/impl"
 	envService "github.com/gndw/gank/services/env/impl"
+	featureflagsService "github.com/gndw/gank/services/featureflags/impl"
 	flagService "github.com/gndw/gank/services/flag/impl"
 	serverService "github.com/gndw/gank/services/http/server/impl"
 	middlewareService "github.com/gndw/gank/services/middlewares/impl"
@@ -54,11 +56,12 @@ var (
 	MachinevarKey     reflect.Type = reflect.TypeOf(func(machinevar.Service) {}).In(0)
 	IoKey             reflect.Type = reflect.TypeOf(func(io.Service) {}).In(0)
 
-	DbKey     reflect.Type = reflect.TypeOf(func(db.Service) {}).In(0)
-	RouterKey reflect.Type = reflect.TypeOf(func(router.Service) {}).In(0)
-	HashKey   reflect.Type = reflect.TypeOf(func(hash.Service) {}).In(0)
-	LogKey    reflect.Type = reflect.TypeOf(func(log.Service) {}).In(0)
-	TokenKey  reflect.Type = reflect.TypeOf(func(token.Service) {}).In(0)
+	DbKey          reflect.Type = reflect.TypeOf(func(db.Service) {}).In(0)
+	FeatureFlagKey reflect.Type = reflect.TypeOf(func(featureflags.Service) {}).In(0)
+	RouterKey      reflect.Type = reflect.TypeOf(func(router.Service) {}).In(0)
+	HashKey        reflect.Type = reflect.TypeOf(func(hash.Service) {}).In(0)
+	LogKey         reflect.Type = reflect.TypeOf(func(log.Service) {}).In(0)
+	TokenKey       reflect.Type = reflect.TypeOf(func(token.Service) {}).In(0)
 )
 
 func CreateApp(lc lifecycler.Service, options ...model.BuilderOption) (app *model.App, err error) {
@@ -152,7 +155,8 @@ func GetDefaultInternalProviders() (providers map[reflect.Type]interface{}) {
 }
 func GetDefaultExternalProviders() (providers map[reflect.Type]interface{}) {
 	return map[reflect.Type]interface{}{
-		DbKey: dbService.NewSqlx,
+		DbKey:          dbService.NewSqlx,
+		FeatureFlagKey: featureflagsService.NewRemoteJsonURL,
 	}
 }
 
